@@ -148,7 +148,7 @@ tr:last-child td{border-bottom:0}
 <!-- ===== หน้ากำลังบันทึก / สำเร็จ ===== -->
 <main class="app" id="vDone" hidden>
   <div class="top"><span class="school" data-school></span></div>
-  <div class="done" id="saving"><div class="spin"></div><div>กำลังบันทึก…</div></div>
+  <div class="done" id="saving"><div class="spin"></div><div id="savingTxt">กำลังบันทึก…</div></div>
   <div class="done" id="saved" hidden>
     <div class="mark"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg></div>
     <h2 id="dTitle">ลงเวลาเข้าแล้ว</h2>
@@ -207,15 +207,15 @@ function show(id) {
 function err(el, msg) { el.textContent = msg || ''; el.hidden = !msg; }
 function setSchool(name) { document.querySelectorAll('[data-school]').forEach(e => { if (name) e.textContent = name; }); if (name) document.title = 'ลงเวลาครู · ' + name; }
 
-async function api(action, data) {
+async function api(action, data, timeoutMs) {
   if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(API_URL)) throw new Error('ยังไม่ได้ใส่ URL ของ Apps Script ในไฟล์ index.html');
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 45000);
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs || 30000);
   let res;
   try {
     res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(Object.assign({ action }, data)), signal: ctrl.signal, redirect: 'follow' });
   } catch (e) {
-    throw new Error(e.name === 'AbortError' ? 'เซิร์ฟเวอร์ตอบช้าเกินไป ลองอีกครั้ง' : 'เชื่อมต่ออินเทอร์เน็ตไม่ได้ ตรวจสอบสัญญาณแล้วลองอีกครั้ง');
+    const ne = new Error(e.name === 'AbortError' ? 'เซิร์ฟเวอร์ตอบช้าเกินไป ลองอีกครั้ง' : 'เชื่อมต่ออินเทอร์เน็ตไม่ได้ ตรวจสอบสัญญาณแล้วลองอีกครั้ง'); ne.network = true; throw ne;
   } finally { clearTimeout(timer); }
   let j;
   try { j = await res.json(); } catch (e) { throw new Error('เซิร์ฟเวอร์ตอบกลับไม่ถูกต้อง ผู้ดูแลตรวจสอบการ Deploy (ต้องตั้ง Who has access เป็น Anyone)'); }
@@ -385,25 +385,40 @@ $('#shutter').addEventListener('click', () => {
 $('#camCancel').addEventListener('click', () => { stopCam(); stopGps(); show('vHome'); });
 
 /* ---------- ส่งข้อมูล ---------- */
+function countType(list, t) { return (list || []).filter(r => r.type === t).length; }
 async function send() {
   show('vDone'); $('#saving').hidden = false; $('#saved').hidden = true; $('#saveFail').hidden = true;
+  $('#savingTxt').textContent = 'กำลังบันทึก…';
+  const want = S.mode === 'in' ? 'เข้า' : 'ออก', had = countType(S.today, want);
+  const slow = setTimeout(() => { $('#savingTxt').textContent = 'กำลังบันทึก… สัญญาณช้า กรุณารอสักครู่ อย่าปิดหน้านี้'; }, 8000);
   try {
-    const j = await api('punch', {
-      code: S.creds.code, pin: S.creds.pin, type: S.mode,
-      lat: S.pos.lat, lng: S.pos.lng, acc: S.pos.acc,
-      photo: S.photo, source: S.source, ua: navigator.userAgent
-    });
+    let j;
+    try {
+      j = await api('punch', {
+        code: S.creds.code, pin: S.creds.pin, type: S.mode,
+        lat: S.pos.lat, lng: S.pos.lng, acc: S.pos.acc,
+        photo: S.photo, source: S.source, ua: navigator.userAgent
+      }, 60000);
+    } catch (x) {
+      if (!x.network) throw x;
+      // ส่งไปแล้วแต่ไม่ได้คำตอบ: ตรวจว่าบันทึกสำเร็จหรือยังก่อนให้ส่งซ้ำ
+      $('#savingTxt').textContent = 'กำลังตรวจสอบว่าบันทึกสำเร็จหรือไม่…';
+      const chk = await api('login', S.creds, 30000).catch(() => null);
+      if (!chk || countType(chk.today, want) <= had) throw x;
+      const recs = chk.today.filter(r => r.type === want), last = recs[recs.length - 1];
+      j = { today: chk.today, record: { type: want, time: last.time, status: last.status, dist: null } };
+    }
     S.today = j.today || S.today; renderHome();
     const r = j.record;
     $('#dTitle').textContent = r.type === 'เข้า' ? 'ลงเวลาเข้าแล้ว' : 'ลงเวลาออกแล้ว';
     $('#dTime').textContent = r.time;
     $('#dStatus').innerHTML = pillFor(r.status);
-    $('#dDist').textContent = `ห่างจากจุดศูนย์กลางโรงเรียน ${dText(r.dist)}`;
+    $('#dDist').textContent = r.dist != null ? `ห่างจากจุดศูนย์กลางโรงเรียน ${dText(r.dist)}` : '';
     $('#dImg').src = S.photo;
     $('#saving').hidden = true; $('#saved').hidden = false;
   } catch (x) {
     $('#saving').hidden = true; $('#saveFail').hidden = false; err($('#saveErr'), x.message);
-  }
+  } finally { clearTimeout(slow); }
 }
 $('#doneBtn').addEventListener('click', () => show('vHome'));
 $('#retryBtn').addEventListener('click', send);
