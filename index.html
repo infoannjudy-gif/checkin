@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1e6b55">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ลงเวลาครู">
+<title>ลงเวลาครู</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500&family=Sarabun:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* ===== ตั้งค่า: วาง URL ของ Apps Script ในบรรทัด API_URL ช่วงท้ายไฟล์ ===== */
+:root{
+  --bg:#f3f5f1;--surface:#fff;--sunk:#e8ece5;--line:#d5dbd1;--ink:#17241d;--muted:#5d6b62;
+  --accent:#1e6b55;--accent-ink:#fff;--accent-soft:#dcebe4;
+  --ok:#1e7a4f;--ok-soft:#ddf1e5;--late:#a3620f;--late-soft:#fbecd3;--bad:#a8392f;--bad-soft:#f7e0dc;
+  --display:"Mitr","Sarabun",system-ui,sans-serif;--body:"Sarabun",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#111814;--surface:#18221c;--sunk:#0d130f;--line:#2b3830;--ink:#e6eee8;--muted:#97a69c;
+  --accent:#5fc4a1;--accent-ink:#0c1a14;--accent-soft:#1d3a2f;
+  --ok:#6fd39c;--ok-soft:#173526;--late:#f0b45e;--late-soft:#3a2a12;--bad:#f08a7e;--bad-soft:#3c1d19;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+[hidden]{display:none!important}
+h1,h2,h3{font-family:var(--display);font-weight:500;margin:0;text-wrap:balance}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{max-width:480px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:16px;min-height:100vh}
+.app.wide{max-width:960px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:8px;border-bottom:2px solid var(--ink)}
+.top .school{font-family:var(--display);font-size:17px}
+.link{background:none;border:0;padding:6px 0;color:var(--accent);cursor:pointer;font-weight:600;font-size:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--muted)}
+input[type=text],input[type=password],input[type=date]{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:18px;width:100%}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 18px;cursor:pointer;font-weight:600;font-size:16px}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.big{font-family:var(--display);font-weight:500;font-size:22px;padding:20px;border-radius:16px;width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.err{background:var(--bad-soft);color:var(--bad);border-radius:10px;padding:10px 14px;font-size:15px}
+.clock{text-align:center;padding:8px 0}
+.clock .t{font-family:var(--mono);font-size:56px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums}
+.clock .d{color:var(--muted);margin-top:6px}
+.slots{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.slot{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.slot .l{font-size:14px;color:var(--muted)}
+.slot .v{font-family:var(--mono);font-size:28px;font-weight:600;line-height:1.2}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:2px 10px;border-radius:999px;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.p-ok{background:var(--ok-soft);color:var(--ok)}.p-late{background:var(--late-soft);color:var(--late)}
+.p-bad{background:var(--bad-soft);color:var(--bad)}.p-none{background:var(--sunk);color:var(--muted)}
+/* camera */
+.cam{position:relative;border-radius:18px;overflow:hidden;background:#000;aspect-ratio:3/4;width:100%}
+.cam video,.cam img{width:100%;height:100%;object-fit:cover;display:block}
+.cam video{transform:scaleX(-1)}
+.cam .oval{position:absolute;inset:12% 18% 18%;border:3px dashed rgba(255,255,255,.75);border-radius:50%;pointer-events:none}
+.cam .gps{position:absolute;left:10px;right:10px;top:10px;display:flex;justify-content:center}
+.cam .gps span{background:rgba(0,0,0,.6);color:#fff;padding:6px 12px;border-radius:999px;font-size:14px}
+.cam .msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#fff;text-align:center;padding:24px}
+.shutter{width:76px;height:76px;border-radius:50%;border:5px solid var(--accent);background:var(--surface);cursor:pointer;margin:0 auto;display:block}
+.shutter:disabled{opacity:.4;cursor:not-allowed}
+.done{text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.done .mark{width:72px;height:72px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:flex;align-items:center;justify-content:center}
+.done .t{font-family:var(--mono);font-size:44px;font-weight:600}
+.done img{width:140px;border-radius:12px}
+.spin{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:3s}}
+/* admin */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat .n{font-family:var(--mono);font-size:28px;font-weight:600}
+.stat .l{font-size:14px;color:var(--muted)}
+.tbl{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:13px;color:var(--muted);background:var(--sunk)}
+tr:last-child td{border-bottom:0}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.scrim .box{background:var(--surface);border-radius:14px;padding:14px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:10px}
+.scrim img{width:100%;border-radius:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+</style>
+</head>
+<body>
+
+<!-- ===== หน้าเข้าสู่ระบบ ===== -->
+<main class="app" id="vLogin" hidden>
+  <div class="top"><span class="school" data-school>ลงเวลาครู</span></div>
+  <div>
+    <h1 style="font-size:28px">ลงเวลาเข้า–ออก</h1>
+    <p class="muted" style="margin:4px 0 0">เข้าสู่ระบบครั้งเดียว เครื่องนี้จะจำไว้ให้</p>
+  </div>
+  <form class="card" id="loginForm">
+    <label for="inCode">รหัสครู<input type="text" id="inCode" autocomplete="username" autocapitalize="characters" placeholder="เช่น T001" required></label>
+    <label for="inPin">PIN<input type="password" id="inPin" inputmode="numeric" autocomplete="current-password" placeholder="4–6 หลัก" required></label>
+    <div class="err" id="loginErr" hidden></div>
+    <button class="btn primary big" id="loginBtn" type="submit">เข้าสู่ระบบ</button>
+  </form>
+  <button class="link" data-go-admin>สำหรับผู้บริหาร: ดูสรุปการลงเวลา</button>
+</main>
+
+<!-- ===== หน้าหลัก ===== -->
+<main class="app" id="vHome" hidden>
+  <div class="top"><span class="school" data-school></span><button class="link" id="logoutBtn">ออกจากระบบ</button></div>
+  <div>
+    <div class="muted small">สวัสดีค่ะ/ครับ</div>
+    <h1 style="font-size:26px" id="tName"></h1>
+  </div>
+  <div class="clock"><div class="t" id="clk">--:--</div><div class="d" id="clkD"></div></div>
+  <div class="slots">
+    <div class="slot"><div class="l">เวลาเข้า</div><div class="v" id="sIn">—</div><div id="sInSt"></div></div>
+    <div class="slot"><div class="l">เวลาออก</div><div class="v" id="sOut">—</div><div id="sOutSt"></div></div>
+  </div>
+  <div class="err" id="homeErr" hidden></div>
+  <button class="btn primary big" id="punchBtn">ลงเวลาเข้า</button>
+  <p class="muted small" style="margin:0;text-align:center" id="rule"></p>
+</main>
+
+<!-- ===== หน้าถ่ายรูป ===== -->
+<main class="app" id="vCam" hidden>
+  <div class="top"><h2 style="font-size:20px" id="camTitle">ลงเวลาเข้า</h2><button class="link" id="camCancel">ยกเลิก</button></div>
+  <div class="cam">
+    <video id="video" playsinline muted autoplay></video>
+    <img id="filePreview" alt="รูปที่ถ่าย" hidden>
+    <div class="oval" id="oval"></div>
+    <div class="gps"><span id="gpsTxt">กำลังหาตำแหน่ง…</span></div>
+    <div class="msg" id="camMsg" hidden>
+      <div id="camMsgTxt"></div>
+      <button class="btn primary" id="fileBtn" type="button">เปิดกล้องถ่ายรูป</button>
+    </div>
+  </div>
+  <input type="file" id="fileIn" accept="image/*" capture="user" hidden>
+  <div class="err" id="camErr" hidden></div>
+  <button class="shutter" id="shutter" aria-label="ถ่ายรูปและลงเวลา" disabled></button>
+  <p class="muted small" style="text-align:center;margin:0" id="camHint">จัดหน้าให้อยู่ในวงรี แล้วกดปุ่มกลม</p>
+</main>
+
+<!-- ===== หน้ากำลังบันทึก / สำเร็จ ===== -->
+<main class="app" id="vDone" hidden>
+  <div class="top"><span class="school" data-school></span></div>
+  <div class="done" id="saving"><div class="spin"></div><div>กำลังบันทึก…</div></div>
+  <div class="done" id="saved" hidden>
+    <div class="mark"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg></div>
+    <h2 id="dTitle">ลงเวลาเข้าแล้ว</h2>
+    <div class="t" id="dTime"></div>
+    <div id="dStatus"></div>
+    <div class="muted small" id="dDist"></div>
+    <img id="dImg" alt="รูปที่ใช้ลงเวลา">
+    <button class="btn primary" id="doneBtn" style="margin-top:8px;width:100%">เสร็จสิ้น</button>
+  </div>
+  <div id="saveFail" hidden style="display:flex;flex-direction:column;gap:12px">
+    <div class="err" id="saveErr"></div>
+    <button class="btn primary" id="retryBtn">ลองส่งอีกครั้ง</button>
+    <button class="btn" id="failBack">กลับหน้าหลัก</button>
+  </div>
+</main>
+
+<!-- ===== ผู้บริหาร ===== -->
+<main class="app wide" id="vAdmin" hidden>
+  <div class="top"><span class="school" data-school>สรุปการลงเวลาครู</span><button class="link" id="adminBack">กลับหน้าลงเวลา</button></div>
+  <form class="card" id="adminForm">
+    <h2 style="font-size:20px">สรุปการลงเวลาครู</h2>
+    <div class="row">
+      <label for="adPin" style="flex:1 1 160px">รหัสผู้บริหาร<input type="password" id="adPin" inputmode="numeric" autocomplete="current-password" required></label>
+      <label for="adDate" style="flex:1 1 160px">วันที่<input type="date" id="adDate"></label>
+      <button class="btn primary" type="submit" id="adGo">ดูสรุป</button>
+    </div>
+    <div class="err" id="adErr" hidden></div>
+  </form>
+  <div id="adOut"></div>
+</main>
+
+<div id="modal"></div>
+
+<script>
+/* ============================================================
+   ตั้งค่า: วาง Web app URL ที่ได้จาก Apps Script ระหว่างเครื่องหมายคำพูด
+   ============================================================ */
+const API_URL = 'https://script.google.com/macros/s/AKfycbxgHoxiAdFdmc4FaOtTHidj2oqgRmgG4ez45HUHy3mQTqIxZAB0uhCr_whXzpBbmQaL/exec';
+
+(function () {
+'use strict';
+const $ = s => document.querySelector(s);
+const pad = n => String(n).padStart(2, '0');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+const S = { creds: store.get('tc-creds'), teacher: null, settings: null, today: [], pos: null, watch: null, stream: null, mode: 'in', photo: null, source: 'camera' };
+
+function show(id) {
+  ['vLogin', 'vHome', 'vCam', 'vDone', 'vAdmin'].forEach(v => { $('#' + v).hidden = v !== id; });
+  window.scrollTo(0, 0);
+}
+function err(el, msg) { el.textContent = msg || ''; el.hidden = !msg; }
+function setSchool(name) { document.querySelectorAll('[data-school]').forEach(e => { if (name) e.textContent = name; }); if (name) document.title = 'ลงเวลาครู · ' + name; }
+
+async function api(action, data) {
+  if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(API_URL)) throw new Error('ยังไม่ได้ใส่ URL ของ Apps Script ในไฟล์ index.html');
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 45000);
+  let res;
+  try {
+    res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(Object.assign({ action }, data)), signal: ctrl.signal, redirect: 'follow' });
+  } catch (e) {
+    throw new Error(e.name === 'AbortError' ? 'เซิร์ฟเวอร์ตอบช้าเกินไป ลองอีกครั้ง' : 'เชื่อมต่ออินเทอร์เน็ตไม่ได้ ตรวจสอบสัญญาณแล้วลองอีกครั้ง');
+  } finally { clearTimeout(timer); }
+  let j;
+  try { j = await res.json(); } catch (e) { throw new Error('เซิร์ฟเวอร์ตอบกลับไม่ถูกต้อง ผู้ดูแลตรวจสอบการ Deploy (ต้องตั้ง Who has access เป็น Anyone)'); }
+  if (!j.ok) throw new Error(j.error || 'เกิดข้อผิดพลาด');
+  return j;
+}
+
+/* ---------- นาฬิกา ---------- */
+function tick() {
+  const n = new Date();
+  $('#clk').textContent = pad(n.getHours()) + ':' + pad(n.getMinutes()) + ':' + pad(n.getSeconds());
+  $('#clkD').textContent = n.toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+}
+setInterval(tick, 1000); tick();
+
+/* ---------- เข้าสู่ระบบ ---------- */
+$('#loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const code = $('#inCode').value.trim(), pin = $('#inPin').value.trim();
+  $('#loginBtn').disabled = true; $('#loginBtn').textContent = 'กำลังตรวจสอบ…'; err($('#loginErr'));
+  try {
+    const j = await api('login', { code, pin });
+    S.creds = { code: j.teacher.code, pin }; store.set('tc-creds', S.creds);
+    applyLogin(j); show('vHome');
+  } catch (x) { err($('#loginErr'), x.message); }
+  $('#loginBtn').disabled = false; $('#loginBtn').textContent = 'เข้าสู่ระบบ';
+});
+function applyLogin(j) {
+  S.teacher = j.teacher; S.settings = j.settings; S.today = j.today || [];
+  store.set('tc-cache', { teacher: j.teacher, settings: j.settings, school: j.settings.school });
+  setSchool(j.settings.school);
+  $('#tName').textContent = j.teacher.name;
+  renderHome();
+}
+$('#logoutBtn').addEventListener('click', () => {
+  store.del('tc-creds'); store.del('tc-cache'); S.creds = null;
+  $('#inPin').value = ''; show('vLogin');
+});
+
+/* ---------- หน้าหลัก ---------- */
+function pillFor(status) {
+  if (!status) return '';
+  const cls = /นอกรัศมี|ไม่มีเวลาเข้า/.test(status) ? 'p-bad' : /สาย|ก่อนเวลา/.test(status) ? 'p-late' : 'p-ok';
+  return `<span class="pill ${cls}">${esc(status)}</span>`;
+}
+function renderHome() {
+  const tin = S.today.find(r => r.type === 'เข้า');
+  const outs = S.today.filter(r => r.type === 'ออก');
+  const tout = outs[outs.length - 1];
+  $('#sIn').textContent = tin ? tin.time : '—';
+  $('#sInSt').innerHTML = tin ? pillFor(tin.status) : '<span class="pill p-none">ยังไม่ลงเวลา</span>';
+  $('#sOut').textContent = tout ? tout.time : '—';
+  $('#sOutSt').innerHTML = tout ? pillFor(tout.status) : '';
+  S.mode = tin ? 'out' : 'in';
+  $('#punchBtn').textContent = !tin ? 'ลงเวลาเข้า' : tout ? 'ลงเวลาออกใหม่' : 'ลงเวลาออก';
+  const st = S.settings || {};
+  $('#rule').textContent = `เข้าสายหลัง ${st.late || '-'} น.` + (st.end ? ` · เลิกงาน ${st.end} น.` : '') + ` · ต้องอยู่ในรัศมี ${st.radius || '-'} ม. จากโรงเรียน`;
+}
+$('#punchBtn').addEventListener('click', openCamera);
+
+/* ---------- GPS ---------- */
+function distM(a, b, c, d) {
+  const R = 6371000, r = Math.PI / 180, x = (c - a) * r, y = (d - b) * r;
+  const h = Math.sin(x / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin(y / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+const dText = m => m >= 1000 ? (m / 1000).toFixed(1) + ' กม.' : Math.round(m) + ' ม.';
+function startGps() {
+  S.pos = null;
+  if (!('geolocation' in navigator)) { gpsMsg('เครื่องนี้ไม่รองรับ GPS', true); return; }
+  S.watch = navigator.geolocation.watchPosition(p => {
+    const c = p.coords;
+    if (!S.pos || c.accuracy <= S.pos.acc || Date.now() - S.pos.at > 10000) S.pos = { lat: c.latitude, lng: c.longitude, acc: c.accuracy, at: Date.now() };
+    updateGps();
+  }, e => {
+    gpsMsg(e.code === 1 ? 'ไม่ได้รับอนุญาตให้ใช้ตำแหน่ง เปิดสิทธิ์ตำแหน่งให้เบราว์เซอร์แล้วลองใหม่' : 'หาตำแหน่งไม่ได้ ลองออกไปที่โล่งแล้วรอสักครู่', true);
+  }, { enableHighAccuracy: true, maximumAge: 0, timeout: 30000 });
+}
+function stopGps() { if (S.watch != null) navigator.geolocation.clearWatch(S.watch); S.watch = null; }
+function gpsMsg(t, bad) { $('#gpsTxt').textContent = t; if (bad) err($('#camErr'), t); updateShutter(); }
+function gpsState() {
+  const st = S.settings || {};
+  if (!S.pos) return { ready: false };
+  if (st.lat == null) return { ready: true, text: `ได้ตำแหน่งแล้ว (±${Math.round(S.pos.acc)} ม.)` };
+  const d = distM(S.pos.lat, S.pos.lng, st.lat, st.lng), inside = d <= st.radius;
+  return { ready: inside || st.allowOutside, inside, d, text: (inside ? '✓ อยู่ในโรงเรียน' : '✗ อยู่นอกรัศมี') + ` · ห่าง ${dText(d)} (±${Math.round(S.pos.acc)} ม.)` };
+}
+function updateGps() {
+  const g = gpsState();
+  if (!g.text) return;
+  $('#gpsTxt').textContent = g.text;
+  if (g.inside === false && !(S.settings || {}).allowOutside) err($('#camErr'), `ต้องอยู่ห่างจากโรงเรียนไม่เกิน ${S.settings.radius} ม. ถ้าอยู่ในโรงเรียนแล้ว รอให้ GPS แม่นขึ้นสักครู่`);
+  else if (S.pos.acc > 150) err($('#camErr'), `สัญญาณ GPS ยังไม่แม่น (±${Math.round(S.pos.acc)} ม.) รอสักครู่หรือออกไปที่โล่ง`);
+  else err($('#camErr'));
+  updateShutter();
+}
+
+/* ---------- กล้อง ---------- */
+function updateShutter() {
+  const camReady = S.source === 'file' ? !!S.photo : (S.stream && $('#video').videoWidth > 0);
+  $('#shutter').disabled = !(camReady && gpsState().ready);
+}
+async function openCamera() {
+  S.photo = null; S.source = 'camera';
+  $('#camTitle').textContent = S.mode === 'in' ? 'ลงเวลาเข้า' : 'ลงเวลาออก';
+  $('#filePreview').hidden = true; $('#video').hidden = false; $('#oval').hidden = false;
+  $('#camMsg').hidden = true; err($('#camErr')); $('#gpsTxt').textContent = 'กำลังหาตำแหน่ง…';
+  $('#camHint').textContent = 'จัดหน้าให้อยู่ในวงรี แล้วกดปุ่มกลม';
+  show('vCam'); startGps(); updateShutter();
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('nocam');
+    S.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 960 } }, audio: false });
+    const v = $('#video'); v.srcObject = S.stream;
+    v.onloadedmetadata = () => { v.play().catch(() => {}); updateShutter(); };
+  } catch (e) {
+    useFileFallback(e && e.name === 'NotAllowedError'
+      ? 'ไม่ได้รับอนุญาตให้ใช้กล้อง กดปุ่มด้านล่างเพื่อถ่ายรูปด้วยกล้องของเครื่องแทน'
+      : 'เปิดกล้องในแอปไม่ได้ กดปุ่มด้านล่างเพื่อถ่ายรูปด้วยกล้องของเครื่องแทน');
+  }
+}
+function useFileFallback(msg) {
+  S.source = 'file'; stopCam();
+  $('#video').hidden = true; $('#oval').hidden = true;
+  $('#camMsgTxt').textContent = msg; $('#camMsg').hidden = false;
+  $('#camHint').textContent = 'ถ่ายรูปหน้าตัวเองแล้วกดปุ่มกลมเพื่อส่ง';
+  updateShutter();
+}
+$('#fileBtn').addEventListener('click', () => $('#fileIn').click());
+$('#fileIn').addEventListener('change', e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const img = new Image();
+  img.onload = () => {
+    S.photo = frame(img, img.naturalWidth, img.naturalHeight, false);
+    $('#filePreview').src = S.photo; $('#filePreview').hidden = false; $('#camMsg').hidden = true;
+    URL.revokeObjectURL(img.src); updateShutter();
+  };
+  img.onerror = () => err($('#camErr'), 'เปิดรูปนี้ไม่ได้ ลองถ่ายใหม่');
+  img.src = URL.createObjectURL(f);
+  e.target.value = '';
+});
+function stopCam() { if (S.stream) S.stream.getTracks().forEach(t => t.stop()); S.stream = null; }
+
+/* ครอปเป็นแนวตั้ง 3:4 กว้าง 480px พร้อมประทับเวลา ชื่อ และระยะห่าง */
+function frame(src, sw, sh, mirror) {
+  const W = 480, H = 640, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  const r = W / H; let cw = sw, ch = sw / r; if (ch > sh) { ch = sh; cw = sh * r; }
+  x.save(); if (mirror) { x.translate(W, 0); x.scale(-1, 1); }
+  x.drawImage(src, (sw - cw) / 2, (sh - ch) / 2, cw, ch, 0, 0, W, H); x.restore();
+  const n = new Date(), g = gpsState();
+  const l1 = `${S.teacher ? S.teacher.name : ''} · ${S.mode === 'in' ? 'เข้า' : 'ออก'}`;
+  const l2 = `${n.toLocaleDateString('th-TH')} ${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}` + (g.d != null ? ` · ห่าง ${dText(g.d)}` : '');
+  x.fillStyle = 'rgba(0,0,0,.55)'; x.fillRect(0, H - 64, W, 64);
+  x.fillStyle = '#fff'; x.font = '600 20px Sarabun, sans-serif'; x.fillText(l1, 14, H - 38);
+  x.font = '16px Sarabun, sans-serif'; x.fillText(l2, 14, H - 14);
+  return c.toDataURL('image/jpeg', 0.72);
+}
+
+$('#shutter').addEventListener('click', () => {
+  if (S.source === 'camera') {
+    const v = $('#video');
+    S.photo = frame(v, v.videoWidth, v.videoHeight, true);
+  }
+  if (!S.photo) return;
+  stopCam(); stopGps(); send();
+});
+$('#camCancel').addEventListener('click', () => { stopCam(); stopGps(); show('vHome'); });
+
+/* ---------- ส่งข้อมูล ---------- */
+async function send() {
+  show('vDone'); $('#saving').hidden = false; $('#saved').hidden = true; $('#saveFail').hidden = true;
+  try {
+    const j = await api('punch', {
+      code: S.creds.code, pin: S.creds.pin, type: S.mode,
+      lat: S.pos.lat, lng: S.pos.lng, acc: S.pos.acc,
+      photo: S.photo, source: S.source, ua: navigator.userAgent
+    });
+    S.today = j.today || S.today; renderHome();
+    const r = j.record;
+    $('#dTitle').textContent = r.type === 'เข้า' ? 'ลงเวลาเข้าแล้ว' : 'ลงเวลาออกแล้ว';
+    $('#dTime').textContent = r.time;
+    $('#dStatus').innerHTML = pillFor(r.status);
+    $('#dDist').textContent = `ห่างจากจุดศูนย์กลางโรงเรียน ${dText(r.dist)}`;
+    $('#dImg').src = S.photo;
+    $('#saving').hidden = true; $('#saved').hidden = false;
+  } catch (x) {
+    $('#saving').hidden = true; $('#saveFail').hidden = false; err($('#saveErr'), x.message);
+  }
+}
+$('#doneBtn').addEventListener('click', () => show('vHome'));
+$('#retryBtn').addEventListener('click', send);
+$('#failBack').addEventListener('click', () => show('vHome'));
+
+/* ---------- ผู้บริหาร ---------- */
+const todayKey = () => { const n = new Date(); return n.getFullYear() + '-' + pad(n.getMonth() + 1) + '-' + pad(n.getDate()); };
+$('#adDate').value = todayKey();
+document.querySelectorAll('[data-go-admin]').forEach(b => b.addEventListener('click', () => { location.hash = 'admin'; }));
+$('#adminBack').addEventListener('click', () => { history.replaceState(null, '', location.pathname); route(); });
+let adminPin = '';
+$('#adminForm').addEventListener('submit', async e => {
+  e.preventDefault(); adminPin = $('#adPin').value.trim(); err($('#adErr'));
+  $('#adGo').disabled = true; $('#adOut').innerHTML = '<div class="done"><div class="spin"></div></div>';
+  try { renderAdmin(await api('adminDay', { pin: adminPin, date: $('#adDate').value })); }
+  catch (x) { $('#adOut').innerHTML = ''; err($('#adErr'), x.message); }
+  $('#adGo').disabled = false;
+});
+function slotCell(r) {
+  if (!r) return '<td class="mono">—</td><td></td><td></td>';
+  return `<td class="mono">${esc(r.time)}</td><td>${pillFor(r.status)}</td><td>${dText(r.dist)}${r.photoId ? ` <button class="link" data-photo="${esc(r.photoId)}">รูป</button>` : ''}</td>`;
+}
+function renderAdmin(j) {
+  setSchool(j.school);
+  const rows = j.rows, came = rows.filter(r => r.in), late = came.filter(r => /สาย/.test(r.in.status)), outside = rows.filter(r => (r.in && !r.in.inside) || (r.out && !r.out.inside));
+  const d = new Date(j.date + 'T00:00:00').toLocaleDateString('th-TH', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  $('#adOut').innerHTML = `
+  <p class="muted" style="margin:0 0 10px">${esc(d)} · เข้าสายหลัง ${esc(j.late)} น.</p>
+  <div class="stats">
+    <div class="stat"><div class="l">มาแล้ว</div><div class="n">${came.length}</div><div class="muted small">จาก ${rows.length} คน</div></div>
+    <div class="stat"><div class="l">มาสาย</div><div class="n">${late.length}</div></div>
+    <div class="stat"><div class="l">ยังไม่ลงเวลา</div><div class="n">${rows.length - came.length}</div></div>
+    <div class="stat"><div class="l">ลงนอกรัศมี</div><div class="n">${outside.length}</div></div>
+  </div>
+  <div class="tbl" style="margin-top:12px"><table>
+    <thead><tr><th>รหัส</th><th>ชื่อ</th><th>เข้า</th><th>สถานะ</th><th>ระยะ</th><th>ออก</th><th>สถานะ</th><th>ระยะ</th></tr></thead>
+    <tbody>${rows.length ? rows.map(r => `<tr><td class="mono">${esc(r.code)}</td><td>${esc(r.name)}</td>${r.in ? slotCell(r.in) : '<td class="mono">—</td><td><span class="pill p-none">ยังไม่ลงเวลา</span></td><td></td>'}${slotCell(r.out)}</tr>`).join('') : '<tr><td colspan="8" class="muted">ยังไม่มีรายชื่อครูในชีต "ครู"</td></tr>'}</tbody>
+  </table></div>`;
+}
+$('#adOut').addEventListener('click', async e => {
+  const b = e.target.closest('[data-photo]'); if (!b) return;
+  const m = $('#modal');
+  m.innerHTML = '<div class="scrim" id="scrim"><div class="box"><div class="done"><div class="spin"></div><div>กำลังโหลดรูป…</div></div><button class="btn" id="mClose">ปิด</button></div></div>';
+  const close = () => { m.innerHTML = ''; };
+  $('#mClose').onclick = close; $('#scrim').onclick = ev => { if (ev.target.id === 'scrim') close(); };
+  try {
+    const j = await api('adminPhoto', { pin: adminPin, id: b.dataset.photo });
+    if ($('#scrim')) $('#scrim .box').innerHTML = `<img src="${j.data}" alt="รูปลงเวลา"><button class="btn" id="mClose">ปิด</button>`;
+  } catch (x) {
+    if ($('#scrim')) $('#scrim .box').innerHTML = `<div class="err">${esc(x.message)}</div><button class="btn" id="mClose">ปิด</button>`;
+  }
+  const c = $('#mClose'); if (c) c.onclick = close;
+});
+
+/* ---------- เริ่มต้น ---------- */
+function route() {
+  if (location.hash === '#admin') { show('vAdmin'); $('#adPin').focus(); return; }
+  if (!S.creds) { show('vLogin'); return; }
+  const cache = store.get('tc-cache');
+  if (cache) { S.teacher = cache.teacher; S.settings = cache.settings; setSchool(cache.school); $('#tName').textContent = cache.teacher.name; renderHome(); }
+  show('vHome');
+  api('login', S.creds).then(j => { applyLogin(j); err($('#homeErr')); })
+    .catch(x => {
+      if (/PIN|รหัสครู|ปิดการใช้งาน/.test(x.message)) { store.del('tc-creds'); S.creds = null; show('vLogin'); err($('#loginErr'), x.message); }
+      else err($('#homeErr'), x.message);
+    });
+}
+window.addEventListener('hashchange', route);
+const c0 = store.get('tc-cache'); if (c0) setSchool(c0.school);
+route();
+})();
+</script>
+</body>
+</html>
