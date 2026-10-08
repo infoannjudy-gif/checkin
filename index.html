@@ -186,7 +186,7 @@ tr:last-child td{border-bottom:0}
 /* ============================================================
    ตั้งค่า: วาง Web app URL ที่ได้จาก Apps Script ระหว่างเครื่องหมายคำพูด
    ============================================================ */
-const API_URL = 'https://script.google.com/macros/s/AKfycbxgHoxiAdFdmc4FaOtTHidj2oqgRmgG4ez45HUHy3mQTqIxZAB0uhCr_whXzpBbmQaL/exec';
+const API_URL = 'PASTE_APPS_SCRIPT_URL_HERE';
 
 (function () {
 'use strict';
@@ -237,7 +237,7 @@ $('#loginForm').addEventListener('submit', async e => {
   const code = $('#inCode').value.trim(), pin = $('#inPin').value.trim();
   $('#loginBtn').disabled = true; $('#loginBtn').textContent = 'กำลังตรวจสอบ…'; err($('#loginErr'));
   try {
-    const j = await api('login', { code, pin });
+    const j = await api('login', { code, pin }, 60000);
     S.creds = { code: j.teacher.code, pin }; store.set('tc-creds', S.creds);
     applyLogin(j); show('vHome');
   } catch (x) { err($('#loginErr'), x.message); }
@@ -433,9 +433,10 @@ let adminPin = '';
 $('#adminForm').addEventListener('submit', async e => {
   e.preventDefault(); adminPin = $('#adPin').value.trim(); err($('#adErr'));
   $('#adGo').disabled = true; $('#adOut').innerHTML = '<div class="done"><div class="spin"></div></div>';
-  try { renderAdmin(await api('adminDay', { pin: adminPin, date: $('#adDate').value })); }
+  const slowA = setTimeout(() => { const t = $('#adOut .done'); if (t) t.insertAdjacentHTML('beforeend', '<div class="muted small">เซิร์ฟเวอร์กำลังเริ่มทำงาน อาจใช้เวลาสักครู่…</div>'); }, 8000);
+  try { renderAdmin(await api('adminDay', { pin: adminPin, date: $('#adDate').value }, 60000)); }
   catch (x) { $('#adOut').innerHTML = ''; err($('#adErr'), x.message); }
-  $('#adGo').disabled = false;
+  clearTimeout(slowA); $('#adGo').disabled = false;
 });
 function slotCell(r) {
   if (!r) return '<td class="mono">—</td><td></td><td></td>';
@@ -465,7 +466,7 @@ $('#adOut').addEventListener('click', async e => {
   const close = () => { m.innerHTML = ''; };
   $('#mClose').onclick = close; $('#scrim').onclick = ev => { if (ev.target.id === 'scrim') close(); };
   try {
-    const j = await api('adminPhoto', { pin: adminPin, id: b.dataset.photo });
+    const j = await api('adminPhoto', { pin: adminPin, id: b.dataset.photo }, 60000);
     if ($('#scrim')) $('#scrim .box').innerHTML = `<img src="${j.data}" alt="รูปลงเวลา"><button class="btn" id="mClose">ปิด</button>`;
   } catch (x) {
     if ($('#scrim')) $('#scrim .box').innerHTML = `<div class="err">${esc(x.message)}</div><button class="btn" id="mClose">ปิด</button>`;
@@ -480,12 +481,16 @@ function route() {
   const cache = store.get('tc-cache');
   if (cache) { S.teacher = cache.teacher; S.settings = cache.settings; setSchool(cache.school); $('#tName').textContent = cache.teacher.name; renderHome(); }
   show('vHome');
-  api('login', S.creds).then(j => { applyLogin(j); err($('#homeErr')); })
+  api('login', S.creds, 60000).then(j => { applyLogin(j); err($('#homeErr')); })
     .catch(x => {
       if (/PIN|รหัสครู|ปิดการใช้งาน/.test(x.message)) { store.del('tc-creds'); S.creds = null; show('vLogin'); err($('#loginErr'), x.message); }
       else err($('#homeErr'), x.message);
     });
 }
+/* ปลุกเซิร์ฟเวอร์ทันทีที่เปิดแอป เพื่อให้คำขอจริงตอบเร็วขึ้น */
+function warmUp() { if (/^https:\/\/script\.google\.com\//.test(API_URL)) fetch(API_URL + '?warm=1').catch(() => {}); }
+warmUp();
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') warmUp(); });
 window.addEventListener('hashchange', route);
 const c0 = store.get('tc-cache'); if (c0) setSchool(c0.school);
 route();
