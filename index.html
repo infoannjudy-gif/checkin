@@ -244,7 +244,7 @@ $('#loginForm').addEventListener('submit', async e => {
   $('#loginBtn').disabled = false; $('#loginBtn').textContent = 'เข้าสู่ระบบ';
 });
 function applyLogin(j) {
-  S.teacher = j.teacher; S.settings = j.settings; S.today = j.today || [];
+  S.teacher = j.teacher; S.settings = j.settings; S.today = j.today || []; S.duty = j.duty || null;
   store.set('tc-cache', { teacher: j.teacher, settings: j.settings, school: j.settings.school });
   setSchool(j.settings.school);
   $('#tName').textContent = j.teacher.name;
@@ -272,7 +272,8 @@ function renderHome() {
   S.mode = tin ? 'out' : 'in';
   $('#punchBtn').textContent = !tin ? 'ลงเวลาเข้า' : tout ? 'ลงเวลาออกใหม่' : 'ลงเวลาออก';
   const st = S.settings || {};
-  $('#rule').textContent = `เข้าสายหลัง ${st.late || '-'} น.` + (st.end ? ` · เลิกงาน ${st.end} น.` : '') + ` · ต้องอยู่ในรัศมี ${st.radius || '-'} ม. จากโรงเรียน`;
+  const d = S.duty, late = (d && d.late) || st.late, end = (d && d.end) || st.end;
+  $('#rule').textContent = (d ? `วันนี้คุณมี${d.name} · ` : '') + `เข้าสายหลัง ${late || '-'} น.` + (end ? ` · เลิกงาน ${end} น.` : '') + ` · ต้องอยู่ในรัศมี ${st.radius || '-'} ม. จากโรงเรียน`;
 }
 $('#punchBtn').addEventListener('click', openCamera);
 
