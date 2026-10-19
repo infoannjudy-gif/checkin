@@ -197,7 +197,6 @@ tr:last-child td{border-bottom:0}
         <option value="personal" data-i="kind.personal"></option>
         <option value="maternity" data-i="kind.maternity"></option>
         <option value="ordination" data-i="kind.ordination"></option>
-        <option value="other" data-i="kind.other"></option>
       </select>
     </label>
     <label for="lvFrom"><span data-i="leave.from"></span><input type="date" id="lvFrom" required></label>
@@ -322,7 +321,7 @@ const D = {
     'year.pick': 'ปีลา (ค.ศ. เริ่ม พ.ค.)', 'year.ph': 'เว้นว่าง = ปีปัจจุบัน', 'year.btn': 'สรุปวันลาทั้งปี',
     'year.title': 'สรุปวันลาทั้งปี ({0} – {1})', 'year.quota': 'สิทธิ์: ป่วย {0} · กิจ {1} · คลอด {2} (รับเงินเดือน {3}) วัน', 'year.sick': 'ลาป่วย', 'year.personal': 'ลากิจ',
     'year.late': 'สาย/กลับก่อน (ครั้ง)', 'year.lateDays': 'ตัดเป็นลากิจ (วัน)', 'year.absent': 'ขาดงาน (วัน)', 'year.used': 'ลากิจรวม', 'year.left': 'ลากิจคงเหลือ',
-    'year.sickLeft': 'ป่วยคงเหลือ', 'year.mat': 'ลาคลอด', 'year.other': 'ลาอื่น/บวช', 'year.flag': 'แจ้งเตือน', 'year.ok': 'ปกติ',
+    'year.sickLeft': 'ป่วยคงเหลือ', 'year.mat': 'ลาคลอด', 'year.other': 'ลาบวช', 'year.flag': 'แจ้งเตือน', 'year.ok': 'ปกติ',
     'year.over': 'เกินสิทธิ์', 'year.fullp': 'ครบสิทธิ์', 'year.unpaid': 'คลอดเกินวันรับเงินเดือน', 'year.csv': 'ดาวน์โหลด CSV',
     'alert.title': 'ครูลาครบ/เกินสิทธิ์ (มีผลต่อเงินเดือน)', 'alert.sick': 'ลาป่วย', 'alert.personal': 'ลากิจ', 'alert.maternity': 'ลาคลอด',
     'admin.title': 'สรุปการลงเวลาครู', 'admin.back': 'กลับหน้าลงเวลา', 'admin.pin': 'รหัสผู้บริหาร',
@@ -342,7 +341,7 @@ const D = {
     'home.leave': 'ยื่นใบลา', 'leave.title': 'ยื่นใบลา', 'leave.back': 'กลับหน้าหลัก', 'leave.kind': 'ประเภทการลา',
     'kind.sick': 'ลาป่วย', 'kind.personal': 'ลากิจ', 'kind.maternity': 'ลาคลอด', 'kind.ordination': 'ลาบวช', 'kind.other': 'ลาอื่นๆ',
     'leave.from': 'ตั้งแต่วันที่', 'leave.to': 'ถึงวันที่', 'leave.allDay': 'ลาทั้งวัน', 'leave.ft': 'เวลาเริ่มลา', 'leave.tt': 'เวลาสิ้นสุดการลา',
-    'leave.reason': 'เหตุผลเพิ่มเติม (ไม่บังคับ ยกเว้นลาอื่นๆ)', 'leave.submit': 'ส่งใบลา', 'leave.busy': 'กำลังส่ง…',
+    'leave.reason': 'เหตุผลเพิ่มเติม (ไม่บังคับ)', 'leave.submit': 'ส่งใบลา', 'leave.busy': 'กำลังส่ง…',
     'leave.sent': 'ส่งใบลาเรียบร้อยแล้ว ระบบจะบันทึกว่าลาตามวันที่ที่แจ้ง', 'leave.mine': 'ใบลาของฉัน', 'leave.none': 'ยังไม่มีใบลา',
     'leave.cancel': 'ยกเลิก', 'leave.confirm': 'ยกเลิกใบลานี้ใช่หรือไม่?',
     'login.sys': 'Admin ระบบ: รายงานประจำสัปดาห์ / ปลดล็อค PIN', 'home.pin': 'เปลี่ยน PIN',
@@ -397,7 +396,7 @@ const D = {
     'year.pick': 'Leave year (CE, starts May)', 'year.ph': 'Blank = current year', 'year.btn': 'Yearly leave summary',
     'year.title': 'Yearly leave summary ({0} – {1})', 'year.quota': 'Entitlement: sick {0} · personal {1} · maternity {2} ({3} paid) days', 'year.sick': 'Sick', 'year.personal': 'Personal',
     'year.late': 'Late/early (times)', 'year.lateDays': 'Counted as personal (days)', 'year.absent': 'Absent (days)', 'year.used': 'Personal total', 'year.left': 'Personal left',
-    'year.sickLeft': 'Sick left', 'year.mat': 'Maternity', 'year.other': 'Other/ordination', 'year.flag': 'Alert', 'year.ok': 'OK',
+    'year.sickLeft': 'Sick left', 'year.mat': 'Maternity', 'year.other': 'Ordination', 'year.flag': 'Alert', 'year.ok': 'OK',
     'year.over': 'Over limit', 'year.fullp': 'Used up', 'year.unpaid': 'Maternity beyond paid days', 'year.csv': 'Download CSV',
     'alert.title': 'Teachers who used up/exceeded leave (affects pay)', 'alert.sick': 'Sick', 'alert.personal': 'Personal', 'alert.maternity': 'Maternity',
     'admin.title': 'Attendance summary', 'admin.back': 'Back to check-in', 'admin.pin': 'Admin PIN',
@@ -417,7 +416,7 @@ const D = {
     'home.leave': 'Request leave', 'leave.title': 'Request leave', 'leave.back': 'Back to home', 'leave.kind': 'Type of leave',
     'kind.sick': 'Sick Leave', 'kind.personal': 'Personal Leave', 'kind.maternity': 'Maternity Leave', 'kind.ordination': 'Ordination Leave', 'kind.other': 'Other',
     'leave.from': 'From date', 'leave.to': 'To date', 'leave.allDay': 'Full day(s)', 'leave.ft': 'Start time', 'leave.tt': 'End time',
-    'leave.reason': 'Additional details (optional, required for Other)', 'leave.submit': 'Submit leave request', 'leave.busy': 'Sending…',
+    'leave.reason': 'Additional details (optional)', 'leave.submit': 'Submit leave request', 'leave.busy': 'Sending…',
     'leave.sent': 'Leave request submitted. You will be recorded as on leave for these dates.', 'leave.mine': 'My leave requests', 'leave.none': 'No leave requests yet',
     'leave.cancel': 'Cancel', 'leave.confirm': 'Cancel this leave request?',
     'login.sys': 'System admin: weekly report / unlock PIN', 'home.pin': 'Change PIN',
