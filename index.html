@@ -86,6 +86,7 @@ textarea{resize:vertical;min-height:84px}
 .chk{flex-direction:row;align-items:center;gap:10px;color:var(--ink);font-size:16px}
 .chk input{width:22px;height:22px;flex:none}
 .ok{background:var(--ok-soft);color:var(--ok);border-radius:10px;padding:10px 14px;font-size:15px;font-weight:600}
+.bal{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:7px 0;border-top:1px solid var(--line)}.bal b.warn{color:var(--late)}.bal b.bad{color:var(--bad)}
 .lv{border-top:1px solid var(--line);padding:10px 0;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .lv:first-child{border-top:0;padding-top:0}
 /* admin */
@@ -133,6 +134,7 @@ tr:last-child td{border-bottom:0}
   <div class="note" id="leaveNote" hidden></div>
   <div class="note soft" id="offNote" hidden></div>
   <div class="note" id="pinNote" hidden></div>
+  <div class="card" id="balHome" hidden></div>
   <div class="clock"><div class="t" id="clk">--:--</div><div class="d" id="clkD"></div></div>
   <div class="slots">
     <div class="slot"><div class="l" data-i="home.in"></div><div class="v" id="sIn">—</div><div id="sInSt"></div></div>
@@ -187,6 +189,7 @@ tr:last-child td{border-bottom:0}
 <!-- ===== ยื่นใบลา / Leave request ===== -->
 <main class="app" id="vLeave" hidden>
   <div class="top"><h2 style="font-size:20px" data-i="leave.title"></h2><div class="acts"><button class="link lang" data-lang type="button"></button><button class="link" id="leaveBack" data-i="leave.back"></button></div></div>
+  <div class="card" id="balLeave" hidden></div>
   <form class="card" id="leaveForm">
     <label for="lvKind"><span data-i="leave.kind"></span>
       <select id="lvKind">
@@ -253,6 +256,10 @@ tr:last-child td{border-bottom:0}
       <label for="adDate" style="flex:1 1 160px"><span data-i="admin.date"></span><input type="date" id="adDate"></label>
       <button class="btn primary" type="submit" id="adGo" data-i="admin.go"></button>
     </div>
+    <div class="row">
+      <label for="adYr" style="flex:1 1 160px"><span data-i="year.pick"></span><input type="number" id="adYr" inputmode="numeric" min="2000" max="2700" data-ph="year.ph"></label>
+      <button class="btn" type="button" id="adYear" data-i="year.btn"></button>
+    </div>
     <div class="err" id="adErr" hidden></div>
   </form>
   <div id="adOut"></div>
@@ -308,6 +315,16 @@ const D = {
     'save.dist': 'ห่างจากจุดศูนย์กลางโรงเรียน {0}', 'save.ok': 'เสร็จสิ้น', 'save.retry': 'ลองส่งอีกครั้ง',
     'save.back': 'กลับหน้าหลัก', 'save.imgAlt': 'รูปที่ใช้ลงเวลา',
     'stamp.in': 'เข้า', 'stamp.out': 'ออก', 'stamp.away': 'ห่าง {0}',
+    'bal.title': 'สิทธิ์การลาคงเหลือ (ปีลา {0} – {1})', 'bal.sick': 'ลาป่วย', 'bal.personal': 'ลากิจ (รวมขาดงาน/สาย)', 'bal.maternity': 'ลาคลอด',
+    'bal.paid': 'ได้รับเงินเดือนอีก {0} วัน', 'bal.unpaid': 'เกินสิทธิ์รับเงินเดือน {0} วัน (ไม่ได้รับเงินเดือน)', 'bal.days': 'วัน',
+    'bal.late': 'มาสาย/กลับก่อน {0} ครั้ง (อีก {1} ครั้ง = ลากิจ 1 วัน)', 'bal.absent': 'ขาดงาน {0} วัน (ตัดจากลากิจ)',
+    'bal.low': 'สิทธิ์{0}เหลือน้อย', 'bal.full': 'สิทธิ์{0}ครบแล้ว การลาเพิ่มจะมีผลต่อเงินเดือน ผู้บริหารได้รับแจ้งแล้ว',
+    'year.pick': 'ปีลา (ค.ศ. เริ่ม พ.ค.)', 'year.ph': 'เว้นว่าง = ปีปัจจุบัน', 'year.btn': 'สรุปวันลาทั้งปี',
+    'year.title': 'สรุปวันลาทั้งปี ({0} – {1})', 'year.quota': 'สิทธิ์: ป่วย {0} · กิจ {1} · คลอด {2} (รับเงินเดือน {3}) วัน', 'year.sick': 'ลาป่วย', 'year.personal': 'ลากิจ',
+    'year.late': 'สาย/กลับก่อน (ครั้ง)', 'year.lateDays': 'ตัดเป็นลากิจ (วัน)', 'year.absent': 'ขาดงาน (วัน)', 'year.used': 'ลากิจรวม', 'year.left': 'ลากิจคงเหลือ',
+    'year.sickLeft': 'ป่วยคงเหลือ', 'year.mat': 'ลาคลอด', 'year.other': 'ลาอื่น/บวช', 'year.flag': 'แจ้งเตือน', 'year.ok': 'ปกติ',
+    'year.over': 'เกินสิทธิ์', 'year.fullp': 'ครบสิทธิ์', 'year.unpaid': 'คลอดเกินวันรับเงินเดือน', 'year.csv': 'ดาวน์โหลด CSV',
+    'alert.title': 'ครูลาครบ/เกินสิทธิ์ (มีผลต่อเงินเดือน)', 'alert.sick': 'ลาป่วย', 'alert.personal': 'ลากิจ', 'alert.maternity': 'ลาคลอด',
     'admin.title': 'สรุปการลงเวลาครู', 'admin.back': 'กลับหน้าลงเวลา', 'admin.pin': 'รหัสผู้บริหาร',
     'admin.date': 'วันที่', 'admin.go': 'ดูสรุป', 'admin.starting': 'เซิร์ฟเวอร์กำลังเริ่มทำงาน อาจใช้เวลาสักครู่…',
     'admin.sub': '{0} · เข้าสายหลัง {1} น. · นับขาดงานหลัง {2} น.',
@@ -373,6 +390,16 @@ const D = {
     'save.dist': '{0} from the school centre', 'save.ok': 'Done', 'save.retry': 'Try again',
     'save.back': 'Back to home', 'save.imgAlt': 'Photo used for check-in',
     'stamp.in': 'In', 'stamp.out': 'Out', 'stamp.away': '{0} away',
+    'bal.title': 'Leave balance (leave year {0} – {1})', 'bal.sick': 'Sick leave', 'bal.personal': 'Personal leave (incl. absences/late)', 'bal.maternity': 'Maternity leave',
+    'bal.paid': '{0} paid day(s) left', 'bal.unpaid': '{0} day(s) beyond paid maternity leave (unpaid)', 'bal.days': 'days',
+    'bal.late': 'Late/early departures: {0} ({1} more = 1 day of personal leave)', 'bal.absent': 'Absent {0} day(s) (deducted from personal leave)',
+    'bal.low': '{0} balance is running low', 'bal.full': '{0} entitlement used up. Further leave affects salary; the administrator has been notified.',
+    'year.pick': 'Leave year (CE, starts May)', 'year.ph': 'Blank = current year', 'year.btn': 'Yearly leave summary',
+    'year.title': 'Yearly leave summary ({0} – {1})', 'year.quota': 'Entitlement: sick {0} · personal {1} · maternity {2} ({3} paid) days', 'year.sick': 'Sick', 'year.personal': 'Personal',
+    'year.late': 'Late/early (times)', 'year.lateDays': 'Counted as personal (days)', 'year.absent': 'Absent (days)', 'year.used': 'Personal total', 'year.left': 'Personal left',
+    'year.sickLeft': 'Sick left', 'year.mat': 'Maternity', 'year.other': 'Other/ordination', 'year.flag': 'Alert', 'year.ok': 'OK',
+    'year.over': 'Over limit', 'year.fullp': 'Used up', 'year.unpaid': 'Maternity beyond paid days', 'year.csv': 'Download CSV',
+    'alert.title': 'Teachers who used up/exceeded leave (affects pay)', 'alert.sick': 'Sick', 'alert.personal': 'Personal', 'alert.maternity': 'Maternity',
     'admin.title': 'Attendance summary', 'admin.back': 'Back to check-in', 'admin.pin': 'Admin PIN',
     'admin.date': 'Date', 'admin.go': 'View', 'admin.starting': 'The server is starting up. This may take a moment…',
     'admin.sub': '{0} · Late after {1} · Absent counted after {2}',
@@ -437,7 +464,9 @@ function applyLang() {
   tick();
   if (S.teacher) renderHome();
   if (!$('#vCam').hidden) { $('#camTitle').textContent = t(S.mode === 'in' ? 'home.btnIn' : 'home.btnOut'); $('#camHint').textContent = t(S.source === 'file' ? 'cam.hintFile' : 'cam.hint'); updateGps(); }
+  renderBal();
   if (adminData) renderAdmin(adminData);
+  else if (yearShown && yearData) renderYear(yearData);
   if (!$('#vLeave').hidden) renderLeaves();
   if (!$('#vSys').hidden && sysData) { if (sysMode === 'week') renderSys(sysData); else renderLocked(sysData); }
 }
@@ -483,11 +512,11 @@ $('#loginForm').addEventListener('submit', async e => {
   $('#loginBtn').disabled = false; $('#loginBtn').textContent = t('login.btn');
 });
 function applyLogin(j) {
-  S.teacher = j.teacher; S.settings = j.settings; S.today = j.today || []; S.duty = j.duty || null; S.leave = j.leave || null; S.off = j.off || null; S.defaultPin = !!j.defaultPin;
+  S.teacher = j.teacher; S.settings = j.settings; S.today = j.today || []; S.duty = j.duty || null; S.leave = j.leave || null; S.off = j.off || null; S.defaultPin = !!j.defaultPin; if (j.balance) S.balance = j.balance;
   store.set('tc-cache', { teacher: j.teacher, settings: j.settings, school: j.settings.school });
   setSchool(j.settings.school);
   $('#tName').textContent = j.teacher.name;
-  renderHome();
+  renderHome(); renderBal();
 }
 $('#logoutBtn').addEventListener('click', () => {
   store.del('tc-creds'); store.del('tc-cache'); S.creds = null; S.teacher = null;
@@ -684,6 +713,33 @@ $('#doneBtn').addEventListener('click', () => show('vHome'));
 $('#retryBtn').addEventListener('click', send);
 $('#failBack').addEventListener('click', () => show('vHome'));
 
+
+/* ---------- สิทธิ์การลา ---------- */
+const kindWord = k => t('bal.' + k);
+function balHtml(b) {
+  if (!b || !b.me) return '';
+  const m = b.me, q = b.quota, nf = n => String(Math.round(n * 10) / 10);
+  const yr = (y, e) => new Date(y + 'T00:00:00').toLocaleDateString(locale(), { month: 'short', year: 'numeric' });
+  const cls = left => left <= 0 ? 'bad' : left <= 2 ? 'warn' : '';
+  const line = (label, left, quota, extra) => `<div class="bal"><span>${esc(label)}${extra ? `<div class="muted small">${esc(extra)}</div>` : ''}</span><span><b class="mono ${cls(left)}">${nf(left)}</b><span class="muted small"> / ${nf(quota)} ${esc(t('bal.days'))}</span></span></div>`;
+  let h = `<h3 style="font-size:16px;margin-bottom:4px">${esc(t('bal.title', yr(b.year.from), yr(b.year.to)))}</h3>`;
+  h += line(t('bal.sick'), m.sickLeft, q.sick);
+  h += line(t('bal.personal'), m.personalLeft, q.personal);
+  if (m.maternity > 0) h += line(t('bal.maternity'), m.maternityLeft, q.maternity, m.unpaid > 0 ? t('bal.unpaid', nf(m.unpaid)) : t('bal.paid', nf(m.paidLeft)));
+  h += `<div class="muted small" style="margin-top:6px">${esc(t('bal.late', m.lateEarly, m.toNext))}</div>`;
+  if (m.absent > 0) h += `<div class="muted small">${esc(t('bal.absent', m.absent))}</div>`;
+  const warn = [];
+  [['sick', m.sickLeft], ['personal', m.personalLeft]].forEach(([k, left]) => {
+    if (left <= 0) warn.push(`<div class="err" style="margin-top:8px">${esc(t('bal.full', kindWord(k)))}</div>`);
+    else if (left <= 2) warn.push(`<div class="note" style="margin-top:8px">${esc(t('bal.low', kindWord(k)))}</div>`);
+  });
+  return h + warn.join('');
+}
+function renderBal() {
+  const h = balHtml(S.balance);
+  [['#balHome', 'vHome'], ['#balLeave', 'vLeave']].forEach(([q]) => { const e = $(q); e.hidden = !h; e.innerHTML = h; });
+}
+
 /* ---------- ยื่นใบลา ---------- */
 const fmtDay = d => new Date(d + 'T00:00:00').toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' });
 function plusDays(n) { const d = new Date(); d.setDate(d.getDate() + n); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
@@ -700,7 +756,7 @@ function renderLeaves() {
   }).join('');
 }
 async function loadMyLeaves() {
-  try { const j = await api('leaveList', S.creds, 60000); leaves = j.leaves || []; }
+  try { const j = await api('leaveList', S.creds, 60000); leaves = j.leaves || []; if (j.balance) { S.balance = j.balance; renderBal(); } }
   catch (x) { err($('#lvErr'), x.message); }
   renderLeaves();
 }
@@ -727,6 +783,7 @@ $('#leaveForm').addEventListener('submit', async e => {
       ft: all ? '' : $('#lvFt').value, tt: all ? '' : $('#lvTt').value, reason: $('#lvReason').value
     }, 60000);
     leaves = j.leaves || leaves; renderLeaves();
+    if (j.balance) { S.balance = j.balance; renderBal(); }
     $('#lvReason').value = '';
     if (j.pending) leaveMsg(t('leave.pending', (j.fullDays || []).map(fmtDay).join(', '), j.limit), 'note');
     else leaveMsg(t('leave.sent'), 'ok');
@@ -770,7 +827,7 @@ document.querySelectorAll('[data-go-admin]').forEach(b => b.addEventListener('cl
 $('#adminBack').addEventListener('click', () => { history.replaceState(null, '', location.pathname); route(); });
 let adminPin = '';
 async function runAdmin() {
-  err($('#adErr')); $('#adGo').disabled = true; $('#adOut').innerHTML = '<div class="done"><div class="spin"></div></div>';
+  yearShown = false; err($('#adErr')); $('#adGo').disabled = true; $('#adOut').innerHTML = '<div class="done"><div class="spin"></div></div>';
   const slowA = setTimeout(() => { const d = $('#adOut .done'); if (d) d.insertAdjacentHTML('beforeend', `<div class="muted small">${esc(t('admin.starting'))}</div>`); }, 8000);
   try { adminData = await api('adminDay', { pin: adminPin, date: $('#adDate').value }, 60000); renderAdmin(adminData); }
   catch (x) { adminData = null; $('#adOut').innerHTML = ''; err($('#adErr'), x.message); }
@@ -786,6 +843,61 @@ function approvalsHtml(list) {
   }).join('') : `<p class="muted small" style="margin:0">${esc(t('admin.noPending'))}</p>`;
   return `<div class="card" style="margin-bottom:12px"><h3 style="font-size:18px">${esc(t('admin.approvals'))} (${list.length})</h3>${body}</div>`;
 }
+
+function alertsHtml(list) {
+  if (!list.length) return '';
+  const items = list.map(a => {
+    const parts = a.alerts.map(x => x.type === 'unpaid' ? t('year.unpaid') : t('alert.' + x.type) + ' ' + t(x.level === 'over' ? 'year.over' : 'year.fullp'));
+    return `<div class="lv"><div><b>${esc(a.name)}</b> <span class="mono muted">${esc(a.code)}</span></div><div>${parts.map(x => `<span class="pill p-bad">${esc(x)}</span>`).join(' ')}</div></div>`;
+  }).join('');
+  return `<div class="card" style="margin-bottom:12px"><h3 style="font-size:18px;color:var(--bad)">${esc(t('alert.title'))} (${list.length})</h3>${items}</div>`;
+}
+let yearData = null, yearShown = false;
+function yearFlag(o) {
+  if (!o.alerts.length) return `<span class="muted">${esc(t('year.ok'))}</span>`;
+  return o.alerts.map(x => `<span class="pill p-bad">${esc(x.type === 'unpaid' ? t('year.unpaid') : t('alert.' + x.type) + ' ' + t(x.level === 'over' ? 'year.over' : 'year.fullp'))}</span>`).join(' ');
+}
+function flagText(o) { return o.alerts.map(x => x.type === 'unpaid' ? t('year.unpaid') : t('alert.' + x.type) + ' ' + t(x.level === 'over' ? 'year.over' : 'year.fullp')).join('; '); }
+function yearCols(j) {
+  return [
+    [t('admin.code'), o => o.code], [t('admin.name'), o => o.name],
+    [t('year.sick'), o => o.sick], [t('year.sickLeft'), o => o.sickLeft],
+    [t('year.personal'), o => o.personal], [t('year.late'), o => o.lateEarly], [t('year.lateDays'), o => o.lateDays], [t('year.absent'), o => o.absent],
+    [t('year.used'), o => o.personalUsed], [t('year.left'), o => o.personalLeft],
+    [t('year.mat'), o => o.maternity], [t('year.other'), o => Math.round((o.ordination + o.other) * 10) / 10]
+  ];
+}
+function renderYear(j) {
+  const mon = d => new Date(d + 'T00:00:00').toLocaleDateString(locale(), { month: 'short', year: 'numeric' });
+  const cols = yearCols(j), q = j.quota;
+  const flagged = j.rows.filter(o => o.alerts.length).length;
+  $('#adOut').innerHTML = `
+  <h3 style="font-size:18px;margin-bottom:4px">${esc(t('year.title', mon(j.year.from), mon(j.year.to)))}</h3>
+  <p class="muted small" style="margin:0 0 10px">${esc(t('year.quota', q.sick, q.personal, q.maternity, q.paid))}</p>
+  ${alertsHtml(j.rows.filter(o => o.alerts.length))}
+  <div class="row" style="margin-bottom:12px"><button class="btn" id="yearCsv" type="button">${esc(t('year.csv'))}</button></div>
+  <div class="tbl"><table>
+    <thead><tr>${cols.map(c => `<th>${esc(c[0])}</th>`).join('')}<th>${esc(t('year.flag'))}</th></tr></thead>
+    <tbody>${j.rows.length ? j.rows.map(o => `<tr>${cols.map((c, i) => `<td class="${i > 1 ? 'mono' : ''}">${esc(c[1](o))}</td>`).join('')}<td>${yearFlag(o)}</td></tr>`).join('') : `<tr><td colspan="13" class="muted">${esc(t('admin.empty'))}</td></tr>`}</tbody>
+  </table></div>`;
+  $('#yearCsv').onclick = () => {
+    const qq = v => '"' + String(v).replace(/"/g, '""') + '"';
+    const lines = [cols.map(c => c[0]).concat(t('year.flag')).map(qq).join(',')].concat(j.rows.map(o => cols.map(c => c[1](o)).concat(flagText(o)).map(qq).join(',')));
+    const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'leave-year-' + j.year.y + '.csv';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+}
+$('#adYear').addEventListener('click', async () => {
+  adminPin = $('#adPin').value.trim(); if (!adminPin) { $('#adPin').focus(); return; }
+  err($('#adErr')); $('#adYear').disabled = true; $('#adOut').innerHTML = '<div class="done"><div class="spin"></div></div>';
+  let y = Number($('#adYr').value) || 0; if (y > 2400) y -= 543;
+  try { yearData = await api('adminYear', { pin: adminPin, year: y || '' }, 60000); adminData = null; yearShown = true; renderYear(yearData); }
+  catch (x) { $('#adOut').innerHTML = ''; err($('#adErr'), x.message); }
+  $('#adYear').disabled = false;
+});
+
 $('#adOut').addEventListener('click', async e => {
   const b = e.target.closest('[data-decide]'); if (!b) return;
   b.disabled = true; err($('#adErr'));
@@ -885,6 +997,7 @@ function renderAdmin(j) {
   const d = new Date(j.date + 'T00:00:00').toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const stat = (l, n, sub) => `<div class="stat"><div class="l">${esc(l)}</div><div class="n">${n}</div>${sub ? `<div class="muted small">${esc(sub)}</div>` : ''}</div>`;
   $('#adOut').innerHTML = `
+  ${alertsHtml(j.alerts || [])}
   ${approvalsHtml(j.pending || [])}
   ${j.leaveWarn ? `<div class="err" style="margin-bottom:10px">${esc(t('admin.leaveWarn') + j.leaveWarn)}</div>` : ''}
   <p class="muted" style="margin:0 0 10px">${esc(t('admin.sub', d, j.late, j.absentAfter))}</p>
