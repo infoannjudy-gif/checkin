@@ -120,6 +120,7 @@ tr:last-child td{border-bottom:0}
     <button class="btn primary big" id="loginBtn" type="submit" data-i="login.btn"></button>
   </form>
   <button class="link" data-go-admin data-i="login.admin"></button>
+  <button class="link" data-go-sys data-i="login.sys"></button>
 </main>
 
 <!-- ===== หน้าหลัก / Home ===== -->
@@ -131,6 +132,7 @@ tr:last-child td{border-bottom:0}
   </div>
   <div class="note" id="leaveNote" hidden></div>
   <div class="note soft" id="offNote" hidden></div>
+  <div class="note" id="pinNote" hidden></div>
   <div class="clock"><div class="t" id="clk">--:--</div><div class="d" id="clkD"></div></div>
   <div class="slots">
     <div class="slot"><div class="l" data-i="home.in"></div><div class="v" id="sIn">—</div><div id="sInSt"></div></div>
@@ -139,6 +141,7 @@ tr:last-child td{border-bottom:0}
   <div class="err" id="homeErr" hidden></div>
   <button class="btn primary big" id="punchBtn"></button>
   <button class="btn" id="leaveBtn" data-i="home.leave"></button>
+  <button class="link" id="pinBtn" data-i="home.pin"></button>
   <p class="muted small" style="margin:0;text-align:center" id="rule"></p>
 </main>
 
@@ -207,6 +210,37 @@ tr:last-child td{border-bottom:0}
     <button class="btn primary big" id="lvBtn" type="submit" data-i="leave.submit"></button>
   </form>
   <div class="card"><h3 style="font-size:18px" data-i="leave.mine"></h3><div id="lvList"></div></div>
+</main>
+
+<!-- ===== เปลี่ยน PIN / Change PIN ===== -->
+<main class="app" id="vPin" hidden>
+  <div class="top"><h2 style="font-size:20px" data-i="pin.title"></h2><div class="acts"><button class="link lang" data-lang type="button"></button><button class="link" id="pinBack" data-i="leave.back"></button></div></div>
+  <form class="card" id="pinForm">
+    <label for="pnCur"><span data-i="pin.cur"></span><input type="password" id="pnCur" inputmode="numeric" autocomplete="current-password" required></label>
+    <label for="pnNew"><span data-i="pin.new"></span><input type="password" id="pnNew" inputmode="numeric" autocomplete="new-password" required></label>
+    <label for="pnConf"><span data-i="pin.confirm"></span><input type="password" id="pnConf" inputmode="numeric" autocomplete="new-password" required></label>
+    <div class="err" id="pnErr" hidden></div>
+    <div class="ok" id="pnOk" hidden></div>
+    <button class="btn primary big" id="pnBtn" type="submit" data-i="pin.submit"></button>
+  </form>
+</main>
+
+<!-- ===== Admin ระบบ / System admin ===== -->
+<main class="app wide" id="vSys" hidden>
+  <div class="top"><span class="school" data-i="sys.title"></span><div class="acts"><button class="link lang" data-lang type="button"></button><button class="link" id="sysBack" data-i="admin.back"></button></div></div>
+  <form class="card" id="sysForm">
+    <h2 style="font-size:20px" data-i="sys.title"></h2>
+    <div class="row">
+      <label for="sysCode" style="flex:1 1 160px"><span data-i="sys.code"></span><input type="password" id="sysCode" inputmode="numeric" autocomplete="current-password" required></label>
+      <label for="sysDate" style="flex:1 1 160px"><span data-i="sys.week"></span><input type="date" id="sysDate"></label>
+    </div>
+    <div class="row">
+      <button class="btn primary" type="submit" id="sysGo" data-i="sys.report"></button>
+      <button class="btn" type="button" id="sysLockedBtn" data-i="sys.locked"></button>
+    </div>
+    <div class="err" id="sysErr" hidden></div>
+  </form>
+  <div id="sysOut"></div>
 </main>
 
 <!-- ===== ผู้บริหาร / Admin ===== -->
@@ -293,7 +327,21 @@ const D = {
     'leave.from': 'ตั้งแต่วันที่', 'leave.to': 'ถึงวันที่', 'leave.allDay': 'ลาทั้งวัน', 'leave.ft': 'เวลาเริ่มลา', 'leave.tt': 'เวลาสิ้นสุดการลา',
     'leave.reason': 'เหตุผลเพิ่มเติม (ไม่บังคับ ยกเว้นลาอื่นๆ)', 'leave.submit': 'ส่งใบลา', 'leave.busy': 'กำลังส่ง…',
     'leave.sent': 'ส่งใบลาเรียบร้อยแล้ว ระบบจะบันทึกว่าลาตามวันที่ที่แจ้ง', 'leave.mine': 'ใบลาของฉัน', 'leave.none': 'ยังไม่มีใบลา',
-    'leave.cancel': 'ยกเลิก', 'leave.confirm': 'ยกเลิกใบลานี้ใช่หรือไม่?'
+    'leave.cancel': 'ยกเลิก', 'leave.confirm': 'ยกเลิกใบลานี้ใช่หรือไม่?',
+    'login.sys': 'Admin ระบบ: รายงานประจำสัปดาห์ / ปลดล็อค PIN', 'home.pin': 'เปลี่ยน PIN',
+    'pin.default': 'คุณยังใช้ PIN เริ่มต้น (1234) กรุณาเปลี่ยน PIN ของคุณ', 'pin.title': 'เปลี่ยน PIN', 'pin.cur': 'PIN ปัจจุบัน',
+    'pin.new': 'PIN ใหม่ (ตัวเลข 4–6 หลัก)', 'pin.confirm': 'ยืนยัน PIN ใหม่', 'pin.submit': 'บันทึก PIN ใหม่', 'pin.busy': 'กำลังบันทึก…',
+    'pin.ok': 'เปลี่ยน PIN เรียบร้อยแล้ว', 'pin.mismatch': 'PIN ใหม่และการยืนยันไม่ตรงกัน', 'pin.format': 'PIN ใหม่ต้องเป็นตัวเลข 4–6 หลัก',
+    'leave.status.pending': 'รออนุมัติ', 'leave.status.cancelreq': 'รออนุมัติการยกเลิก', 'leave.status.rejected': 'ไม่อนุมัติ',
+    'leave.cancelPast': 'ขอยกเลิก', 'leave.confirmPast': 'ใบลานี้ผ่านไปแล้ว ต้องให้ผู้บริหารอนุมัติการยกเลิก ส่งคำขอใช่หรือไม่?',
+    'leave.pending': 'ส่งใบลาแล้ว แต่วันที่ {0} มีผู้ลาครบ {1} คนแล้ว ใบลานี้ยังไม่มีผลจนกว่าผู้บริหารจะอนุมัติ',
+    'leave.cancelSent': 'ส่งคำขอยกเลิกแล้ว รอผู้บริหารอนุมัติ',
+    'admin.approvals': 'รออนุมัติ', 'admin.approve': 'อนุมัติ', 'admin.reject': 'ไม่อนุมัติ', 'admin.reqNew': 'ขอลา', 'admin.reqCancel': 'ขอยกเลิกใบลา',
+    'admin.full': 'วันที่เต็มแล้ว: {0}', 'admin.noPending': 'ไม่มีรายการรออนุมัติ',
+    'sys.title': 'Admin ระบบ', 'sys.code': 'รหัส Admin ระบบ', 'sys.week': 'สัปดาห์ที่มีวันที่', 'sys.report': 'รายงานประจำสัปดาห์',
+    'sys.locked': 'บัญชีที่ถูกล็อก', 'sys.range': 'สัปดาห์ {0} – {1}', 'sys.csv': 'ดาวน์โหลด CSV', 'sys.present': 'มา', 'sys.late': 'สาย',
+    'sys.leave': 'ลา', 'sys.absent': 'ขาด', 'sys.outside': 'นอกรัศมี', 'sys.noLocked': 'ไม่มีบัญชีที่ถูกล็อก', 'sys.unlock': 'ปลดล็อค',
+    'sys.resetPin': 'ตั้ง PIN ใหม่', 'sys.newPinPrompt': 'ตั้ง PIN ใหม่ให้ครูคนนี้ (ตัวเลข 4–6 หลัก) บัญชีจะถูกปลดล็อคด้วย'
   },
   en: {
     'app.title': 'Teacher Check-in',
@@ -344,7 +392,21 @@ const D = {
     'leave.from': 'From date', 'leave.to': 'To date', 'leave.allDay': 'Full day(s)', 'leave.ft': 'Start time', 'leave.tt': 'End time',
     'leave.reason': 'Additional details (optional, required for Other)', 'leave.submit': 'Submit leave request', 'leave.busy': 'Sending…',
     'leave.sent': 'Leave request submitted. You will be recorded as on leave for these dates.', 'leave.mine': 'My leave requests', 'leave.none': 'No leave requests yet',
-    'leave.cancel': 'Cancel', 'leave.confirm': 'Cancel this leave request?'
+    'leave.cancel': 'Cancel', 'leave.confirm': 'Cancel this leave request?',
+    'login.sys': 'System admin: weekly report / unlock PIN', 'home.pin': 'Change PIN',
+    'pin.default': 'You are still using the default PIN (1234). Please change your PIN.', 'pin.title': 'Change PIN', 'pin.cur': 'Current PIN',
+    'pin.new': 'New PIN (4–6 digits)', 'pin.confirm': 'Confirm new PIN', 'pin.submit': 'Save new PIN', 'pin.busy': 'Saving…',
+    'pin.ok': 'Your PIN has been changed.', 'pin.mismatch': 'The new PIN and confirmation do not match', 'pin.format': 'The new PIN must be 4–6 digits',
+    'leave.status.pending': 'Awaiting approval', 'leave.status.cancelreq': 'Cancellation awaiting approval', 'leave.status.rejected': 'Not approved',
+    'leave.cancelPast': 'Request cancellation', 'leave.confirmPast': 'This leave is in the past. The administrator must approve its cancellation. Send the request?',
+    'leave.pending': 'Submitted, but {1} people are already on leave on {0}. This request has no effect until the administrator approves it.',
+    'leave.cancelSent': 'Cancellation request sent. Waiting for the administrator.',
+    'admin.approvals': 'Awaiting approval', 'admin.approve': 'Approve', 'admin.reject': 'Reject', 'admin.reqNew': 'Leave request', 'admin.reqCancel': 'Cancel leave request',
+    'admin.full': 'Full days: {0}', 'admin.noPending': 'Nothing is waiting for approval',
+    'sys.title': 'System admin', 'sys.code': 'System admin code', 'sys.week': 'Week containing date', 'sys.report': 'Weekly report',
+    'sys.locked': 'Locked accounts', 'sys.range': 'Week {0} – {1}', 'sys.csv': 'Download CSV', 'sys.present': 'Present', 'sys.late': 'Late',
+    'sys.leave': 'Leave', 'sys.absent': 'Absent', 'sys.outside': 'Outside', 'sys.noLocked': 'No locked accounts', 'sys.unlock': 'Unlock',
+    'sys.resetPin': 'Set new PIN', 'sys.newPinPrompt': 'Set a new PIN for this teacher (4–6 digits). The account will also be unlocked.'
   }
 };
 let L = store.get('tc-lang');
@@ -354,10 +416,10 @@ const locale = () => L === 'th' ? 'th-TH' : 'en-GB';
 
 const S = { creds: store.get('tc-creds'), teacher: null, settings: null, today: [], duty: null, leave: null, off: null, pos: null, watch: null, stream: null, mode: 'in', photo: null, source: 'camera' };
 let adminData = null;
-let leaves = [];
+let leaves = [], sysData = null, sysMode = '', sysPin = '';
 
 function show(id) {
-  ['vLogin', 'vHome', 'vCam', 'vDone', 'vLeave', 'vAdmin'].forEach(v => { $('#' + v).hidden = v !== id; });
+  ['vLogin', 'vHome', 'vCam', 'vDone', 'vLeave', 'vPin', 'vSys', 'vAdmin'].forEach(v => { $('#' + v).hidden = v !== id; });
   window.scrollTo(0, 0);
 }
 function err(el, msg) { el.textContent = msg || ''; el.hidden = !msg; }
@@ -377,6 +439,7 @@ function applyLang() {
   if (!$('#vCam').hidden) { $('#camTitle').textContent = t(S.mode === 'in' ? 'home.btnIn' : 'home.btnOut'); $('#camHint').textContent = t(S.source === 'file' ? 'cam.hintFile' : 'cam.hint'); updateGps(); }
   if (adminData) renderAdmin(adminData);
   if (!$('#vLeave').hidden) renderLeaves();
+  if (!$('#vSys').hidden && sysData) { if (sysMode === 'week') renderSys(sysData); else renderLocked(sysData); }
 }
 document.addEventListener('click', e => {
   if (!e.target.closest('[data-lang]')) return;
@@ -420,7 +483,7 @@ $('#loginForm').addEventListener('submit', async e => {
   $('#loginBtn').disabled = false; $('#loginBtn').textContent = t('login.btn');
 });
 function applyLogin(j) {
-  S.teacher = j.teacher; S.settings = j.settings; S.today = j.today || []; S.duty = j.duty || null; S.leave = j.leave || null; S.off = j.off || null;
+  S.teacher = j.teacher; S.settings = j.settings; S.today = j.today || []; S.duty = j.duty || null; S.leave = j.leave || null; S.off = j.off || null; S.defaultPin = !!j.defaultPin;
   store.set('tc-cache', { teacher: j.teacher, settings: j.settings, school: j.settings.school });
   setSchool(j.settings.school);
   $('#tName').textContent = j.teacher.name;
@@ -468,6 +531,7 @@ function renderHome() {
   $('#punchBtn').textContent = t(!tin ? 'home.btnIn' : tout ? 'home.btnOutAgain' : 'home.btnOut');
   const ln = $('#leaveNote'); ln.hidden = !S.leave; ln.textContent = S.leave ? t('home.onLeave', leaveLabel(S.leave)) + (S.leave.reason ? ' · ' + S.leave.reason : '') : '';
   const on = $('#offNote'); on.hidden = !S.off || !!S.leave; on.textContent = S.off ? t('home.off', offLabel(S.off)) : '';
+  $('#pinNote').hidden = !S.defaultPin; $('#pinNote').textContent = t('pin.default');
   const st = S.settings || {};
   const d = S.duty, late = (d && d.late) || st.late, end = (d && d.end) || st.end;
   $('#rule').textContent = (d ? t('home.duty', d.name) : '') + t('home.late', late || '-') + (end ? t('home.end', end) : '') + t('home.radius', st.radius || '-');
@@ -629,7 +693,10 @@ function renderLeaves() {
   box.innerHTML = leaves.map(l => {
     const range = l.from === l.to ? fmtDay(l.from) : fmtDay(l.from) + ' – ' + fmtDay(l.to);
     const time = (l.ft && l.tt) ? ' · ' + l.ft + '–' + l.tt : '';
-    return `<div class="lv"><div><div><span class="pill p-leave">${esc(L === 'en' ? l.en : l.th)}</span></div><div>${esc(range + time)}</div>${l.reason ? `<div class="muted small">${esc(l.reason)}</div>` : ''}</div>${l.canCancel ? `<button class="link" data-cancel="${esc(l.id)}">${esc(t('leave.cancel'))}</button>` : ''}</div>`;
+    const stPill = l.state === 'pending' ? `<span class="pill p-late">${esc(t('leave.status.pending'))}</span> `
+      : l.state === 'cancelreq' ? `<span class="pill p-late">${esc(t('leave.status.cancelreq'))}</span> `
+      : l.state === 'rejected' ? `<span class="pill p-bad">${esc(t('leave.status.rejected'))}</span> ` : '';
+    return `<div class="lv"><div><div>${stPill}<span class="pill p-leave">${esc(L === 'en' ? l.en : l.th)}</span></div><div>${esc(range + time)}</div>${l.reason ? `<div class="muted small">${esc(l.reason)}</div>` : ''}</div>${l.canCancel ? `<button class="link" data-cancel="${esc(l.id)}" data-past="${l.past ? 1 : 0}">${esc(t(l.past ? 'leave.cancelPast' : 'leave.cancel'))}</button>` : ''}</div>`;
   }).join('');
 }
 async function loadMyLeaves() {
@@ -644,6 +711,7 @@ function openLeave() {
   show('vLeave'); renderLeaves(); loadMyLeaves();
 }
 const refreshHome = () => api('login', S.creds, 60000).then(applyLogin).catch(() => {});
+function leaveMsg(text, kind) { const o = $('#lvOk'); o.className = kind; o.textContent = text; o.hidden = false; }
 $('#leaveBtn').addEventListener('click', openLeave);
 $('#leaveBack').addEventListener('click', () => show('vHome'));
 $('#lvFrom').addEventListener('change', () => { if ($('#lvTo').value < $('#lvFrom').value) $('#lvTo').value = $('#lvFrom').value; });
@@ -659,19 +727,40 @@ $('#leaveForm').addEventListener('submit', async e => {
       ft: all ? '' : $('#lvFt').value, tt: all ? '' : $('#lvTt').value, reason: $('#lvReason').value
     }, 60000);
     leaves = j.leaves || leaves; renderLeaves();
-    $('#lvReason').value = ''; $('#lvOk').textContent = t('leave.sent'); $('#lvOk').hidden = false;
+    $('#lvReason').value = '';
+    if (j.pending) leaveMsg(t('leave.pending', (j.fullDays || []).map(fmtDay).join(', '), j.limit), 'note');
+    else leaveMsg(t('leave.sent'), 'ok');
     refreshHome();
   } catch (x) { err($('#lvErr'), x.message); }
   $('#lvBtn').disabled = false; $('#lvBtn').textContent = t('leave.submit');
 });
 $('#lvList').addEventListener('click', async e => {
   const b = e.target.closest('[data-cancel]'); if (!b) return;
-  if (!confirm(t('leave.confirm'))) return;
+  if (!confirm(t(b.dataset.past === '1' ? 'leave.confirmPast' : 'leave.confirm'))) return;
   b.disabled = true; err($('#lvErr')); $('#lvOk').hidden = true;
   try {
     const j = await api('leaveCancel', { code: S.creds.code, pin: S.creds.pin, id: b.dataset.cancel }, 60000);
     leaves = j.leaves || []; renderLeaves(); refreshHome();
+    if (j.requested) leaveMsg(t('leave.cancelSent'), 'note');
   } catch (x) { err($('#lvErr'), x.message); b.disabled = false; }
+});
+
+/* ---------- เปลี่ยน PIN ---------- */
+$('#pinBtn').addEventListener('click', () => { $('#pinForm').reset(); err($('#pnErr')); $('#pnOk').hidden = true; show('vPin'); });
+$('#pinBack').addEventListener('click', () => show('vHome'));
+$('#pinForm').addEventListener('submit', async e => {
+  e.preventDefault(); err($('#pnErr')); $('#pnOk').hidden = true;
+  const np = $('#pnNew').value.trim();
+  if (!/^\d{4,6}$/.test(np)) { err($('#pnErr'), t('pin.format')); return; }
+  if (np !== $('#pnConf').value.trim()) { err($('#pnErr'), t('pin.mismatch')); return; }
+  $('#pnBtn').disabled = true; $('#pnBtn').textContent = t('pin.busy');
+  try {
+    await api('changePin', { code: S.creds.code, pin: $('#pnCur').value.trim(), newPin: np }, 60000);
+    S.creds = { code: S.creds.code, pin: np }; store.set('tc-creds', S.creds);
+    S.defaultPin = false; renderHome();
+    $('#pinForm').reset(); $('#pnOk').textContent = t('pin.ok'); $('#pnOk').hidden = false;
+  } catch (x) { err($('#pnErr'), x.message); }
+  $('#pnBtn').disabled = false; $('#pnBtn').textContent = t('pin.submit');
 });
 
 /* ---------- ผู้บริหาร ---------- */
@@ -680,14 +769,101 @@ $('#adDate').value = todayKey();
 document.querySelectorAll('[data-go-admin]').forEach(b => b.addEventListener('click', () => { location.hash = 'admin'; }));
 $('#adminBack').addEventListener('click', () => { history.replaceState(null, '', location.pathname); route(); });
 let adminPin = '';
-$('#adminForm').addEventListener('submit', async e => {
-  e.preventDefault(); adminPin = $('#adPin').value.trim(); err($('#adErr'));
-  $('#adGo').disabled = true; $('#adOut').innerHTML = '<div class="done"><div class="spin"></div></div>';
+async function runAdmin() {
+  err($('#adErr')); $('#adGo').disabled = true; $('#adOut').innerHTML = '<div class="done"><div class="spin"></div></div>';
   const slowA = setTimeout(() => { const d = $('#adOut .done'); if (d) d.insertAdjacentHTML('beforeend', `<div class="muted small">${esc(t('admin.starting'))}</div>`); }, 8000);
   try { adminData = await api('adminDay', { pin: adminPin, date: $('#adDate').value }, 60000); renderAdmin(adminData); }
   catch (x) { adminData = null; $('#adOut').innerHTML = ''; err($('#adErr'), x.message); }
   clearTimeout(slowA); $('#adGo').disabled = false;
+}
+$('#adminForm').addEventListener('submit', e => { e.preventDefault(); adminPin = $('#adPin').value.trim(); runAdmin(); });
+function approvalsHtml(list) {
+  const body = list.length ? list.map(p => {
+    const range = p.from === p.to ? fmtDay(p.from) : fmtDay(p.from) + ' – ' + fmtDay(p.to);
+    const time = (p.ft && p.tt) ? ' · ' + p.ft + '–' + p.tt : '';
+    const full = p.full && p.full.length ? `<div class="small" style="color:var(--late)">${esc(t('admin.full', p.full.map(fmtDay).join(', ')))}</div>` : '';
+    return `<div class="lv"><div><div><b>${esc(p.name)}</b> <span class="pill ${p.req === 'cancel' ? 'p-late' : 'p-leave'}">${esc(t(p.req === 'cancel' ? 'admin.reqCancel' : 'admin.reqNew') + ' · ' + (L === 'en' ? p.en : p.th))}</span></div><div>${esc(range + time)}</div>${p.reason ? `<div class="muted small">${esc(p.reason)}</div>` : ''}${full}</div><div class="row" style="flex:none"><button class="btn primary" data-decide="${esc(p.id)}" data-d="approve">${esc(t('admin.approve'))}</button><button class="btn" data-decide="${esc(p.id)}" data-d="reject">${esc(t('admin.reject'))}</button></div></div>`;
+  }).join('') : `<p class="muted small" style="margin:0">${esc(t('admin.noPending'))}</p>`;
+  return `<div class="card" style="margin-bottom:12px"><h3 style="font-size:18px">${esc(t('admin.approvals'))} (${list.length})</h3>${body}</div>`;
+}
+$('#adOut').addEventListener('click', async e => {
+  const b = e.target.closest('[data-decide]'); if (!b) return;
+  b.disabled = true; err($('#adErr'));
+  try { await api('adminDecide', { pin: adminPin, id: b.dataset.decide, decision: b.dataset.d }, 60000); await runAdmin(); }
+  catch (x) { err($('#adErr'), x.message); b.disabled = false; }
 });
+
+/* ---------- Admin ระบบ: รายงานประจำสัปดาห์ / ปลดล็อค ---------- */
+$('#sysDate').value = todayKey();
+document.querySelectorAll('[data-go-sys]').forEach(b => b.addEventListener('click', () => { location.hash = 'sysadmin'; }));
+$('#sysBack').addEventListener('click', () => { history.replaceState(null, '', location.pathname); route(); });
+function spin() { $('#sysOut').innerHTML = '<div class="done"><div class="spin"></div></div>'; }
+async function runSys(action, data, mode, render) {
+  err($('#sysErr')); $('#sysGo').disabled = true; $('#sysLockedBtn').disabled = true; spin();
+  try { sysData = await api(action, Object.assign({ pin: sysPin }, data), 60000); sysMode = mode; render(sysData); }
+  catch (x) { sysData = null; $('#sysOut').innerHTML = ''; err($('#sysErr'), x.message); }
+  $('#sysGo').disabled = false; $('#sysLockedBtn').disabled = false;
+}
+const runSysWeek = () => runSys('sysWeek', { date: $('#sysDate').value }, 'week', renderSys);
+const runSysLocked = () => runSys('sysLocked', {}, 'locked', renderLocked);
+$('#sysForm').addEventListener('submit', e => { e.preventDefault(); sysPin = $('#sysCode').value.trim(); runSysWeek(); });
+$('#sysLockedBtn').addEventListener('click', () => { sysPin = $('#sysCode').value.trim(); if (sysPin) runSysLocked(); });
+function cellView(c) {
+  if (c.s === 'present') return `<span class="mono">${esc(c.time)}</span>`;
+  if (c.s === 'late') return `<span class="mono" style="color:var(--late);font-weight:600">${esc(c.time)}</span>`;
+  if (c.s === 'leave') return `<span class="pill p-leave">${esc(t('kind.' + c.kind))}</span>`;
+  if (c.s === 'absent') return `<span class="pill p-bad">${esc(t('sys.absent'))}</span>`;
+  if (c.s === 'off') return '<span class="muted">–</span>';
+  return '<span class="muted">·</span>';
+}
+function cellText(c) {
+  if (c.s === 'present') return c.time;
+  if (c.s === 'late') return c.time + ' (' + t('sys.late') + ')';
+  if (c.s === 'leave') return t('kind.' + c.kind);
+  if (c.s === 'absent') return t('sys.absent');
+  return c.s === 'off' ? '-' : '';
+}
+function downloadCsv(j) {
+  const q = v => '"' + String(v).replace(/"/g, '""') + '"';
+  const head = [t('admin.code'), t('admin.name')].concat(j.days, [t('sys.present'), t('sys.late'), t('sys.leave'), t('sys.absent'), t('sys.outside')]);
+  const lines = [head.map(q).join(',')].concat(j.rows.map(r =>
+    [r.code, r.name].concat(r.cells.map(cellText), [r.present, r.late, r.leave, r.absent, r.outside]).map(q).join(',')));
+  const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'weekly-' + j.days[0] + '.csv';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function renderSys(j) {
+  const dh = d => new Date(d + 'T00:00:00').toLocaleDateString(locale(), { weekday: 'short', day: 'numeric' });
+  const stat = (l, n) => `<div class="stat"><div class="l">${esc(l)}</div><div class="n">${n}</div></div>`;
+  const tot = j.totals;
+  $('#sysOut').innerHTML = `
+  <p class="muted" style="margin:0 0 10px">${esc((j.school ? j.school + ' · ' : '') + t('sys.range', fmtDay(j.days[0]), fmtDay(j.days[6])))}</p>
+  <div class="stats">${stat(t('sys.present'), tot.present)}${stat(t('sys.late'), tot.late)}${stat(t('sys.leave'), tot.leave)}${stat(t('sys.absent'), tot.absent)}${stat(t('sys.outside'), tot.outside)}</div>
+  <div class="row" style="margin-top:12px"><button class="btn" id="sysCsv" type="button">${esc(t('sys.csv'))}</button></div>
+  <div class="tbl" style="margin-top:12px"><table>
+    <thead><tr><th>${esc(t('admin.name'))}</th>${j.days.map(d => `<th>${esc(dh(d))}</th>`).join('')}<th>${esc(t('sys.present'))}</th><th>${esc(t('sys.late'))}</th><th>${esc(t('sys.leave'))}</th><th>${esc(t('sys.absent'))}</th><th>${esc(t('sys.outside'))}</th></tr></thead>
+    <tbody>${j.rows.length ? j.rows.map(r => `<tr><td>${esc(r.name)}</td>${r.cells.map(c => `<td>${cellView(c)}</td>`).join('')}<td class="mono">${r.present}</td><td class="mono">${r.late}</td><td class="mono">${r.leave}</td><td class="mono">${r.absent}</td><td class="mono">${r.outside}</td></tr>`).join('') : `<tr><td colspan="13" class="muted">${esc(t('admin.empty'))}</td></tr>`}</tbody>
+  </table></div>`;
+  $('#sysCsv').onclick = () => downloadCsv(j);
+}
+function renderLocked(j) {
+  const rows = j.locked.map(x => `<div class="lv"><div><b>${esc(x.name)}</b> <span class="mono muted">${esc(x.code)}</span></div><div class="row" style="flex:none"><button class="btn primary" data-unlock="${esc(x.code)}">${esc(t('sys.unlock'))}</button><button class="btn" data-resetpin="${esc(x.code)}">${esc(t('sys.resetPin'))}</button></div></div>`).join('');
+  $('#sysOut').innerHTML = `<div class="card"><h3 style="font-size:18px">${esc(t('sys.locked'))} (${j.locked.length})</h3>${rows || `<p class="muted small" style="margin:0">${esc(t('sys.noLocked'))}</p>`}</div>`;
+}
+$('#sysOut').addEventListener('click', async e => {
+  const u = e.target.closest('[data-unlock],[data-resetpin]'); if (!u) return;
+  let newPin = '';
+  if (u.dataset.resetpin) {
+    const v = prompt(t('sys.newPinPrompt'), ''); if (v === null) return;
+    newPin = v.trim();
+    if (!/^\d{4,6}$/.test(newPin)) { err($('#sysErr'), t('pin.format')); return; }
+  }
+  u.disabled = true; err($('#sysErr'));
+  try { await api('sysUnlock', { pin: sysPin, code: u.dataset.unlock || u.dataset.resetpin, newPin }, 60000); await runSysLocked(); }
+  catch (x) { err($('#sysErr'), x.message); u.disabled = false; }
+});
+
 function slotCell(r) {
   if (!r) return '<td class="mono">—</td><td></td><td></td>';
   return `<td class="mono">${esc(r.time)}</td><td>${pillFor(r.status)}</td><td>${dText(r.dist)}${r.photoId ? ` <button class="link" data-photo="${esc(r.photoId)}">${esc(t('admin.photo'))}</button>` : ''}</td>`;
@@ -709,6 +885,7 @@ function renderAdmin(j) {
   const d = new Date(j.date + 'T00:00:00').toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const stat = (l, n, sub) => `<div class="stat"><div class="l">${esc(l)}</div><div class="n">${n}</div>${sub ? `<div class="muted small">${esc(sub)}</div>` : ''}</div>`;
   $('#adOut').innerHTML = `
+  ${approvalsHtml(j.pending || [])}
   ${j.leaveWarn ? `<div class="err" style="margin-bottom:10px">${esc(t('admin.leaveWarn') + j.leaveWarn)}</div>` : ''}
   <p class="muted" style="margin:0 0 10px">${esc(t('admin.sub', d, j.late, j.absentAfter))}</p>
   <div class="stats">
@@ -742,13 +919,14 @@ $('#adOut').addEventListener('click', async e => {
 /* ---------- เริ่มต้น ---------- */
 function route() {
   if (location.hash === '#admin') { show('vAdmin'); $('#adPin').focus(); return; }
+  if (location.hash === '#sysadmin') { show('vSys'); $('#sysCode').focus(); return; }
   if (!S.creds) { show('vLogin'); return; }
   const cache = store.get('tc-cache');
   if (cache) { S.teacher = cache.teacher; S.settings = cache.settings; setSchool(cache.school); $('#tName').textContent = cache.teacher.name; renderHome(); }
   show('vHome');
   api('login', S.creds, 60000).then(j => { applyLogin(j); err($('#homeErr')); })
     .catch(x => {
-      if (/PIN|รหัสครู|ปิดการใช้งาน|teacher ID|disabled/i.test(x.message)) { store.del('tc-creds'); S.creds = null; show('vLogin'); err($('#loginErr'), x.message); }
+      if (/PIN|รหัสครู|ปิดการใช้งาน|ล็อก|teacher ID|disabled|locked/i.test(x.message)) { store.del('tc-creds'); S.creds = null; show('vLogin'); err($('#loginErr'), x.message); }
       else err($('#homeErr'), x.message);
     });
 }
