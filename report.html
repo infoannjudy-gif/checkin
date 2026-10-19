@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>รายงานการลงเวลารายสัปดาห์</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#111;--muted:#555;--line:#222;--accent:#1e6b55}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Sarabun",system-ui,sans-serif;color:var(--ink);background:#eef1ed;font-size:15px}
+.ctrl{max-width:1100px;margin:16px auto;padding:14px 16px;background:#fff;border:1px solid #d5dbd1;border-radius:12px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.ctrl label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.ctrl input,.ctrl select{font:inherit;padding:9px 12px;border:1px solid #c9d0c5;border-radius:8px;font-size:16px}
+.btn{font:inherit;font-weight:600;padding:10px 16px;border-radius:8px;border:1px solid #c9d0c5;background:#fff;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn:disabled{opacity:.5}
+.err{flex-basis:100%;background:#f7e0dc;color:#a8392f;padding:8px 12px;border-radius:8px}
+.sheet{background:#fff;margin:0 auto 24px;padding:10mm;width:297mm;max-width:100%;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+.hd{text-align:center;margin-bottom:6px}
+.hd h1{font-size:18pt;margin:0;font-weight:700}
+.hd p{margin:2px 0 0;font-size:12pt}
+table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10.5pt}
+th,td{border:1px solid var(--line);padding:3px 2px;text-align:center;line-height:1.25;overflow:hidden}
+th{background:#e6e9e4;font-weight:600}
+thead{display:table-header-group}
+tr{break-inside:avoid;page-break-inside:avoid}
+td.nm{text-align:left;padding-left:5px;white-space:nowrap;text-overflow:ellipsis}
+td.no{width:8mm}
+td.t{font-variant-numeric:tabular-nums;height:7.5mm}
+td.lv{background:#e4e4e4;font-weight:600}
+td.sm{width:9mm}
+.late{font-weight:700}
+.tag{display:block;font-size:8pt;color:#333}
+.seven table{font-size:9pt}
+.foot{margin-top:8px;font-size:10pt;display:flex;justify-content:space-between;gap:16px;align-items:flex-end}
+.sign{display:flex;gap:40px}
+.sign div{text-align:center;min-width:55mm;break-inside:avoid}
+.sign .ln{margin-top:14mm;border-top:1px dotted #000;padding-top:3px}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+@page{size:A4 landscape;margin:10mm}
+@media print{
+  body{background:#fff;font-size:11pt}
+  .ctrl{display:none!important}
+  .sheet{margin:0;padding:0;width:auto;box-shadow:none}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<form class="ctrl" id="f">
+  <label>รหัสผู้บริหาร<input type="password" id="pin" inputmode="numeric" autocomplete="current-password" required></label>
+  <label>สัปดาห์ที่มีวันที่นี้<input type="date" id="date"></label>
+  <label>จำนวนวัน<select id="days"><option value="5">จันทร์–ศุกร์</option><option value="7">จันทร์–อาทิตย์</option></select></label>
+  <button class="btn primary" id="go" type="submit">สร้างรายงาน</button>
+  <button class="btn" type="button" id="prev" disabled>◀ สัปดาห์ก่อน</button>
+  <button class="btn" type="button" id="next" disabled>สัปดาห์ถัดไป ▶</button>
+  <button class="btn" type="button" id="print" disabled>🖨 พิมพ์ (A4 แนวนอน)</button>
+  <div class="err" id="err" hidden></div>
+</form>
+<div id="out"></div>
+
+<script>
+/* วาง Web app URL ของ Apps Script (ตัวเดียวกับใน index.html) */
+const API_URL = 'https://script.google.com/macros/s/AKfycbxgHoxiAdFdmc4FaOtTHidj2oqgRmgG4ez45HUHy3mQTqIxZAB0uhCr_whXzpBbmQaL/exec';
+
+(function(){
+'use strict';
+const $ = s => document.querySelector(s);
+const pad = n => String(n).padStart(2,'0');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MON = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const DOW = {'อาทิตย์':'อา.','จันทร์':'จ.','อังคาร':'อ.','พุธ':'พ.','พฤหัสบดี':'พฤ.','ศุกร์':'ศ.','เสาร์':'ส.'};
+const thDate = k => { const p = k.split('-').map(Number); return p[2] + ' ' + MON[p[1]-1] + ' ' + (p[0]+543); };
+const shortDate = k => { const p = k.split('-').map(Number); return p[2] + ' ' + MON[p[1]-1]; };
+
+let data = null;
+const t = new Date();
+$('#date').value = t.getFullYear() + '-' + pad(t.getMonth()+1) + '-' + pad(t.getDate());
+
+async function api(body){
+  if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(API_URL)) throw new Error('ยังไม่ได้ใส่ URL ของ Apps Script ในไฟล์ report.html');
+  const c = new AbortController(), tm = setTimeout(() => c.abort(), 60000);
+  let res;
+  try { res = await fetch(API_URL, {method:'POST', body:JSON.stringify(body), signal:c.signal, redirect:'follow'}); }
+  catch(e){ throw new Error(e.name === 'AbortError' ? 'เซิร์ฟเวอร์ตอบช้าเกินไป ลองอีกครั้ง' : 'เชื่อมต่ออินเทอร์เน็ตไม่ได้'); }
+  finally { clearTimeout(tm); }
+  let j; try { j = await res.json(); } catch(e){ throw new Error('เซิร์ฟเวอร์ตอบกลับไม่ถูกต้อง'); }
+  if (!j.ok) throw new Error(j.error || 'เกิดข้อผิดพลาด');
+  return j;
+}
+
+async function load(){
+  const err = $('#err'); err.hidden = true;
+  $('#go').disabled = true; $('#go').textContent = 'กำลังสร้าง…';
+  try {
+    data = await api({action:'adminWeek', pin:$('#pin').value.trim(), date:$('#date').value, days:$('#days').value});
+    render();
+    ['print','prev','next'].forEach(i => $('#'+i).disabled = false);
+  } catch(x){ err.textContent = x.message; err.hidden = false; }
+  $('#go').disabled = false; $('#go').textContent = 'สร้างรายงาน';
+}
+$('#f').addEventListener('submit', e => { e.preventDefault(); load(); });
+function shift(n){
+  const p = $('#date').value.split('-').map(Number);
+  const d = new Date(Date.UTC(p[0], p[1]-1, p[2] + n));
+  $('#date').value = d.getUTCFullYear() + '-' + pad(d.getUTCMonth()+1) + '-' + pad(d.getUTCDate());
+  load();
+}
+$('#prev').onclick = () => shift(-7);
+$('#next').onclick = () => shift(7);
+$('#print').onclick = () => window.print();
+
+function punch(rec, flagRe, mark){
+  if (!rec) return null;
+  return flagRe.test(rec.status) ? `<span class="late">${esc(rec.time)}${mark}</span>` : esc(rec.time);
+}
+
+function render(){
+  const d = data, n = d.dates.length;
+  if (!d.rows.length){ $('#out').innerHTML = '<div class="sheet"><div class="empty">ยังไม่มีรายชื่อครูในชีต "ครู"</div></div>'; return; }
+  const head1 = d.dates.map(x => `<th colspan="2">${DOW[x.dow]||esc(x.dow)} ${esc(shortDate(x.date))}</th>`).join('');
+  const head2 = d.dates.map(() => '<th>เข้า</th><th>ออก</th>').join('');
+  const body = d.rows.map((r,i) => {
+    const cells = r.days.map((c,k) => {
+      const date = d.dates[k].date, future = date > d.today;
+      if (c.leave && !c.in && !c.out) return `<td colspan="2" class="lv">${esc(c.leave.type)}${c.leave.note ? `<span class="tag">${esc(c.leave.note)}</span>` : ''}</td>`;
+      const tIn = punch(c.in, /สาย/, '*'), tOut = punch(c.out, /ก่อนเวลา/, '†');
+      const dash = future ? '' : '–';
+      const tag = c.leave ? `<span class="tag">(${esc(c.leave.type)})</span>` : '';
+      return `<td class="t">${tIn || dash}${tag}</td><td class="t">${tOut || dash}</td>`;
+    }).join('');
+    const s = r.sum;
+    return `<tr><td class="no">${i+1}</td><td class="nm">${esc(r.name)}</td>${cells}<td class="sm">${s.present}</td><td class="sm">${s.late}</td><td class="sm">${s.leave}</td><td class="sm">${s.absent}</td></tr>`;
+  }).join('');
+  const first = d.dates[0].date, lastD = d.dates[n-1].date;
+  const now = new Date();
+  const printed = now.getDate() + ' ' + MON[now.getMonth()] + ' ' + (now.getFullYear()+543) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+  $('#out').innerHTML = `
+  <div class="sheet ${n === 7 ? 'seven' : ''}">
+    <div class="hd">
+      <h1>รายงานการลงเวลาปฏิบัติงานของครูและบุคลากร ประจำสัปดาห์</h1>
+      <p>${esc(d.school)} · ระหว่างวันที่ ${esc(thDate(first))} – ${esc(thDate(lastD))}</p>
+    </div>
+    <table>
+      <colgroup><col style="width:8mm"><col style="width:46mm">${d.dates.map(() => '<col><col>').join('')}<col style="width:9mm"><col style="width:9mm"><col style="width:9mm"><col style="width:9mm"></colgroup>
+      <thead>
+        <tr><th rowspan="2">ที่</th><th rowspan="2">ชื่อ–นามสกุล</th>${head1}<th colspan="4">สรุป (วัน)</th></tr>
+        <tr>${head2}<th>มา</th><th>สาย</th><th>ลา</th><th>ขาด</th></tr>
+      </thead>
+      <tbody>${body}</tbody>
+    </table>
+    <div class="foot">
+      <div>
+        เวลาเข้าสายหลัง ${esc(d.late)} น.${d.end ? ' · เลิกงาน ' + esc(d.end) + ' น.' : ''}<br>
+        * = มาสาย · † = ออกก่อนเวลา · – = ไม่มีบันทึก · แถบเทา = วันลา/วันหยุด<br>
+        <span style="color:#555">พิมพ์เมื่อ ${esc(printed)} น.</span>
+      </div>
+      <div class="sign">
+        <div><div class="ln">ผู้จัดทำรายงาน</div></div>
+        <div><div class="ln">ผู้อำนวยการ</div></div>
+      </div>
+    </div>
+  </div>`;
+}
+})();
+</script>
+</body>
+</html>
