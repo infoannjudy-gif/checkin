@@ -197,8 +197,11 @@ tr:last-child td{border-bottom:0}
         <option value="personal" data-i="kind.personal"></option>
         <option value="maternity" data-i="kind.maternity"></option>
         <option value="ordination" data-i="kind.ordination"></option>
+        <option value="offsite" data-i="kind.offsite"></option>
       </select>
     </label>
+    <p class="note" id="lvOffNote" hidden data-i="leave.offsiteNote"></p>
+    <label for="lvPlace" id="lvPlaceWrap" hidden><span data-i="leave.place"></span><input type="text" id="lvPlace" maxlength="200"></label>
     <label for="lvFrom"><span data-i="leave.from"></span><input type="date" id="lvFrom" required></label>
     <label for="lvTo"><span data-i="leave.to"></span><input type="date" id="lvTo" required></label>
     <label class="chk" for="lvAll"><input type="checkbox" id="lvAll" checked><span data-i="leave.allDay"></span></label>
@@ -206,7 +209,7 @@ tr:last-child td{border-bottom:0}
       <label for="lvFt" style="flex:1 1 130px"><span data-i="leave.ft"></span><input type="time" id="lvFt" value="08:00"></label>
       <label for="lvTt" style="flex:1 1 130px"><span data-i="leave.tt"></span><input type="time" id="lvTt" value="17:00"></label>
     </div>
-    <label for="lvReason"><span data-i="leave.reason"></span><textarea id="lvReason" maxlength="300"></textarea></label>
+    <label for="lvReason"><span id="lvReasonLbl" data-i="leave.reason"></span><textarea id="lvReason" maxlength="300"></textarea></label>
     <div class="err" id="lvErr" hidden></div>
     <div class="ok" id="lvOk" hidden></div>
     <button class="btn primary big" id="lvBtn" type="submit" data-i="leave.submit"></button>
@@ -339,6 +342,7 @@ const D = {
     'err.bad': 'เซิร์ฟเวอร์ตอบกลับไม่ถูกต้อง ผู้ดูแลตรวจสอบการ Deploy (ต้องตั้ง Who has access เป็น Anyone)',
     'err.generic': 'เกิดข้อผิดพลาด', 'lang.btn': 'EN',
     'home.leave': 'ยื่นใบลา', 'leave.title': 'ยื่นใบลา', 'leave.back': 'กลับหน้าหลัก', 'leave.kind': 'ประเภทการลา',
+    'kind.offsite': 'ปฏิบัติงานนอกสถานที่', 'sys.offsite': 'นอกสถานที่', 'leave.place': 'สถานที่ปฏิบัติงาน', 'leave.placeShort': 'สถานที่', 'leave.detail': 'รายละเอียดงาน', 'leave.submitOff': 'ส่งขออนุมัติ', 'leave.offsiteNote': 'ต้องให้ผู้บริหารอนุมัติก่อนจึงจะมีผล ไม่นับเป็นวันลา', 'leave.offsiteSent': 'ส่งคำขอปฏิบัติงานนอกสถานที่แล้ว รอผู้บริหารอนุมัติ', 'home.offsite': 'วันนี้ปฏิบัติงานนอกสถานที่: {0}',
     'kind.sick': 'ลาป่วย', 'kind.personal': 'ลากิจ', 'kind.maternity': 'ลาคลอด', 'kind.ordination': 'ลาบวช', 'kind.other': 'ลาอื่นๆ',
     'leave.from': 'ตั้งแต่วันที่', 'leave.to': 'ถึงวันที่', 'leave.allDay': 'ลาทั้งวัน', 'leave.ft': 'เวลาเริ่มลา', 'leave.tt': 'เวลาสิ้นสุดการลา',
     'leave.reason': 'เหตุผลเพิ่มเติม (ไม่บังคับ)', 'leave.submit': 'ส่งใบลา', 'leave.busy': 'กำลังส่ง…',
@@ -352,6 +356,7 @@ const D = {
     'leave.cancelPast': 'ขอยกเลิก', 'leave.confirmPast': 'ใบลานี้ผ่านไปแล้ว ต้องให้ผู้บริหารอนุมัติการยกเลิก ส่งคำขอใช่หรือไม่?',
     'leave.pending': 'ส่งใบลาแล้ว แต่วันที่ {0} มีผู้ลาครบ {1} คนแล้ว ใบลานี้ยังไม่มีผลจนกว่าผู้บริหารจะอนุมัติ',
     'leave.cancelSent': 'ส่งคำขอยกเลิกแล้ว รอผู้บริหารอนุมัติ',
+    'admin.rejectReason': 'เหตุผลที่ไม่อนุมัติ (ครูจะเห็นข้อความนี้)', 'admin.confirmReject': 'ยืนยันไม่อนุมัติ', 'admin.noteBack': 'ยกเลิก', 'admin.needReason': 'กรุณาใส่เหตุผลที่ไม่อนุมัติ', 'leave.rejectNote': 'เหตุผลที่ไม่อนุมัติ', 'leave.adminNote': 'หมายเหตุจากผู้บริหาร',
     'admin.approvals': 'รออนุมัติ', 'admin.approve': 'อนุมัติ', 'admin.reject': 'ไม่อนุมัติ', 'admin.reqNew': 'ขอลา', 'admin.reqCancel': 'ขอยกเลิกใบลา',
     'admin.full': 'วันที่เต็มแล้ว: {0}', 'admin.noPending': 'ไม่มีรายการรออนุมัติ',
     'sys.title': 'Admin ระบบ', 'sys.code': 'รหัส Admin ระบบ', 'sys.week': 'สัปดาห์ที่มีวันที่', 'sys.report': 'รายงานประจำสัปดาห์',
@@ -414,6 +419,7 @@ const D = {
     'err.bad': 'Invalid server response. The admin should check the deployment (Who has access must be Anyone).',
     'err.generic': 'Something went wrong', 'lang.btn': 'ไทย',
     'home.leave': 'Request leave', 'leave.title': 'Request leave', 'leave.back': 'Back to home', 'leave.kind': 'Type of leave',
+    'kind.offsite': 'Off-site work', 'sys.offsite': 'Off-site', 'leave.place': 'Work location', 'leave.placeShort': 'Location', 'leave.detail': 'Work details', 'leave.submitOff': 'Request approval', 'leave.offsiteNote': 'Needs administrator approval before it applies. Not counted as leave.', 'leave.offsiteSent': 'Off-site work request sent. Waiting for administrator approval.', 'home.offsite': 'Working off-site today: {0}',
     'kind.sick': 'Sick Leave', 'kind.personal': 'Personal Leave', 'kind.maternity': 'Maternity Leave', 'kind.ordination': 'Ordination Leave', 'kind.other': 'Other',
     'leave.from': 'From date', 'leave.to': 'To date', 'leave.allDay': 'Full day(s)', 'leave.ft': 'Start time', 'leave.tt': 'End time',
     'leave.reason': 'Additional details (optional)', 'leave.submit': 'Submit leave request', 'leave.busy': 'Sending…',
@@ -427,6 +433,7 @@ const D = {
     'leave.cancelPast': 'Request cancellation', 'leave.confirmPast': 'This leave is in the past. The administrator must approve its cancellation. Send the request?',
     'leave.pending': 'Submitted, but {1} people are already on leave on {0}. This request has no effect until the administrator approves it.',
     'leave.cancelSent': 'Cancellation request sent. Waiting for the administrator.',
+    'admin.rejectReason': 'Reason for not approving (the teacher will see this)', 'admin.confirmReject': 'Confirm rejection', 'admin.noteBack': 'Cancel', 'admin.needReason': 'Please give a reason for not approving', 'leave.rejectNote': 'Reason not approved', 'leave.adminNote': 'Note from administrator',
     'admin.approvals': 'Awaiting approval', 'admin.approve': 'Approve', 'admin.reject': 'Reject', 'admin.reqNew': 'Leave request', 'admin.reqCancel': 'Cancel leave request',
     'admin.full': 'Full days: {0}', 'admin.noPending': 'Nothing is waiting for approval',
     'sys.title': 'System admin', 'sys.code': 'System admin code', 'sys.week': 'Week containing date', 'sys.report': 'Weekly report',
@@ -462,6 +469,7 @@ function applyLang() {
   setSchool(S.settings && S.settings.school);
   tick();
   if (S.teacher) renderHome();
+  if (!$('#vLeave').hidden && !$('#lvBtn').disabled) syncKind();
   if (!$('#vCam').hidden) { $('#camTitle').textContent = t(S.mode === 'in' ? 'home.btnIn' : 'home.btnOut'); $('#camHint').textContent = t(S.source === 'file' ? 'cam.hintFile' : 'cam.hint'); updateGps(); }
   renderBal();
   if (adminData) renderAdmin(adminData);
@@ -557,7 +565,7 @@ function renderHome() {
   $('#sOutSt').innerHTML = tout ? pillFor(tout.status) : '';
   S.mode = tin ? 'out' : 'in';
   $('#punchBtn').textContent = t(!tin ? 'home.btnIn' : tout ? 'home.btnOutAgain' : 'home.btnOut');
-  const ln = $('#leaveNote'); ln.hidden = !S.leave; ln.textContent = S.leave ? t('home.onLeave', leaveLabel(S.leave)) + (S.leave.reason ? ' · ' + S.leave.reason : '') : '';
+  const ln = $('#leaveNote'); ln.hidden = !S.leave; ln.textContent = !S.leave ? '' : S.leave.kind === 'offsite' ? t('home.offsite', S.leave.place || '') : t('home.onLeave', leaveLabel(S.leave)) + (S.leave.reason ? ' · ' + S.leave.reason : '');
   const on = $('#offNote'); on.hidden = !S.off || !!S.leave; on.textContent = S.off ? t('home.off', offLabel(S.off)) : '';
   $('#pinNote').hidden = !S.defaultPin; $('#pinNote').textContent = t('pin.default');
   const st = S.settings || {};
@@ -751,7 +759,7 @@ function renderLeaves() {
     const stPill = l.state === 'pending' ? `<span class="pill p-late">${esc(t('leave.status.pending'))}</span> `
       : l.state === 'cancelreq' ? `<span class="pill p-late">${esc(t('leave.status.cancelreq'))}</span> `
       : l.state === 'rejected' ? `<span class="pill p-bad">${esc(t('leave.status.rejected'))}</span> ` : '';
-    return `<div class="lv"><div><div>${stPill}<span class="pill p-leave">${esc(L === 'en' ? l.en : l.th)}</span></div><div>${esc(range + time)}</div>${l.reason ? `<div class="muted small">${esc(l.reason)}</div>` : ''}</div>${l.canCancel ? `<button class="link" data-cancel="${esc(l.id)}" data-past="${l.past ? 1 : 0}">${esc(t(l.past ? 'leave.cancelPast' : 'leave.cancel'))}</button>` : ''}</div>`;
+    return `<div class="lv"><div><div>${stPill}<span class="pill p-leave">${esc(L === 'en' ? l.en : l.th)}</span></div><div>${esc(range + time)}</div>${l.place ? `<div class="small">${esc(t('leave.placeShort'))}: ${esc(l.place)}</div>` : ''}${l.reason ? `<div class="muted small">${esc(l.reason)}</div>` : ''}${l.note ? `<div class="small" style="color:var(--bad)">${esc(t(l.state === 'rejected' ? 'leave.rejectNote' : 'leave.adminNote'))}: ${esc(l.note)}</div>` : ''}</div>${l.canCancel ? `<button class="link" data-cancel="${esc(l.id)}" data-past="${l.past ? 1 : 0}">${esc(t(l.past ? 'leave.cancelPast' : 'leave.cancel'))}</button>` : ''}</div>`;
   }).join('');
 }
 async function loadMyLeaves() {
@@ -762,7 +770,7 @@ async function loadMyLeaves() {
 function openLeave() {
   const today = plusDays(0);
   ['#lvFrom', '#lvTo'].forEach(q => { $(q).min = plusDays(-30); $(q).max = plusDays(366); $(q).value = today; });
-  $('#lvReason').value = ''; err($('#lvErr')); $('#lvOk').hidden = true;
+  $('#lvReason').value = ''; $('#lvPlace').value = ''; err($('#lvErr')); $('#lvOk').hidden = true; syncKind();
   show('vLeave'); renderLeaves(); loadMyLeaves();
 }
 const refreshHome = () => api('login', S.creds, 60000).then(applyLogin).catch(() => {});
@@ -771,6 +779,13 @@ $('#leaveBtn').addEventListener('click', openLeave);
 $('#leaveBack').addEventListener('click', () => show('vHome'));
 $('#lvFrom').addEventListener('change', () => { if ($('#lvTo').value < $('#lvFrom').value) $('#lvTo').value = $('#lvFrom').value; });
 $('#lvAll').addEventListener('change', () => { $('#lvTimes').hidden = $('#lvAll').checked; });
+function syncKind() {
+  const off = $('#lvKind').value === 'offsite';
+  $('#lvOffNote').hidden = !off; $('#lvPlaceWrap').hidden = !off;
+  $('#lvReasonLbl').textContent = t(off ? 'leave.detail' : 'leave.reason');
+  $('#lvBtn').textContent = t(off ? 'leave.submitOff' : 'leave.submit');
+}
+$('#lvKind').addEventListener('change', syncKind);
 $('#leaveForm').addEventListener('submit', async e => {
   e.preventDefault(); err($('#lvErr')); $('#lvOk').hidden = true;
   $('#lvBtn').disabled = true; $('#lvBtn').textContent = t('leave.busy');
@@ -779,16 +794,17 @@ $('#leaveForm').addEventListener('submit', async e => {
     const j = await api('leaveSubmit', {
       code: S.creds.code, pin: S.creds.pin, kind: $('#lvKind').value,
       from: $('#lvFrom').value, to: $('#lvTo').value, allDay: all,
-      ft: all ? '' : $('#lvFt').value, tt: all ? '' : $('#lvTt').value, reason: $('#lvReason').value
+      ft: all ? '' : $('#lvFt').value, tt: all ? '' : $('#lvTt').value, reason: $('#lvReason').value, place: $('#lvPlace').value
     }, 60000);
     leaves = j.leaves || leaves; renderLeaves();
     if (j.balance) { S.balance = j.balance; renderBal(); }
-    $('#lvReason').value = '';
-    if (j.pending) leaveMsg(t('leave.pending', (j.fullDays || []).map(fmtDay).join(', '), j.limit), 'note');
+    $('#lvReason').value = ''; $('#lvPlace').value = '';
+    if (j.offsite) leaveMsg(t('leave.offsiteSent'), 'note');
+    else if (j.pending) leaveMsg(t('leave.pending', (j.fullDays || []).map(fmtDay).join(', '), j.limit), 'note');
     else leaveMsg(t('leave.sent'), 'ok');
     refreshHome();
   } catch (x) { err($('#lvErr'), x.message); }
-  $('#lvBtn').disabled = false; $('#lvBtn').textContent = t('leave.submit');
+  $('#lvBtn').disabled = false; syncKind();
 });
 $('#lvList').addEventListener('click', async e => {
   const b = e.target.closest('[data-cancel]'); if (!b) return;
@@ -838,7 +854,7 @@ function approvalsHtml(list) {
     const range = p.from === p.to ? fmtDay(p.from) : fmtDay(p.from) + ' – ' + fmtDay(p.to);
     const time = (p.ft && p.tt) ? ' · ' + p.ft + '–' + p.tt : '';
     const full = p.full && p.full.length ? `<div class="small" style="color:var(--late)">${esc(t('admin.full', p.full.map(fmtDay).join(', ')))}</div>` : '';
-    return `<div class="lv"><div><div><b>${esc(p.name)}</b> <span class="pill ${p.req === 'cancel' ? 'p-late' : 'p-leave'}">${esc(t(p.req === 'cancel' ? 'admin.reqCancel' : 'admin.reqNew') + ' · ' + (L === 'en' ? p.en : p.th))}</span></div><div>${esc(range + time)}</div>${p.reason ? `<div class="muted small">${esc(p.reason)}</div>` : ''}${full}</div><div class="row" style="flex:none"><button class="btn primary" data-decide="${esc(p.id)}" data-d="approve">${esc(t('admin.approve'))}</button><button class="btn" data-decide="${esc(p.id)}" data-d="reject">${esc(t('admin.reject'))}</button></div></div>`;
+    return `<div class="lv"><div><div><b>${esc(p.name)}</b> <span class="pill ${p.req === 'cancel' ? 'p-late' : 'p-leave'}">${esc(t(p.req === 'cancel' ? 'admin.reqCancel' : 'admin.reqNew') + ' · ' + (L === 'en' ? p.en : p.th))}</span></div><div>${esc(range + time)}</div>${p.place ? `<div class="small">${esc(t('leave.placeShort'))}: ${esc(p.place)}</div>` : ''}${p.reason ? `<div class="muted small">${esc(p.reason)}</div>` : ''}${full}</div><div class="row" style="flex:none"><button class="btn primary" data-decide="${esc(p.id)}" data-d="approve">${esc(t('admin.approve'))}</button><button class="btn" data-decide="${esc(p.id)}" data-d="reject">${esc(t('admin.reject'))}</button></div></div>`;
   }).join('') : `<p class="muted small" style="margin:0">${esc(t('admin.noPending'))}</p>`;
   return `<div class="card" style="margin-bottom:12px"><h3 style="font-size:18px">${esc(t('admin.approvals'))} (${list.length})</h3>${body}</div>`;
 }
@@ -898,9 +914,28 @@ $('#adYear').addEventListener('click', async () => {
 });
 
 $('#adOut').addEventListener('click', async e => {
+  const nb = e.target.closest('[data-noteback]');
+  if (nb) { const w = nb.closest('.rjbox'); if (w) w.remove(); return; }
   const b = e.target.closest('[data-decide]'); if (!b) return;
+  const item = b.closest('.lv');
+  let note = '';
+  if (b.dataset.d === 'reject') {
+    let box = b.closest('.rjbox') || (item && item.nextElementSibling && item.nextElementSibling.classList.contains('rjbox') ? item.nextElementSibling : null);
+    if (!box) {
+      const id = 'rj_' + b.dataset.decide.replace(/[^\w-]/g, '');
+      item.insertAdjacentHTML('afterend', `<div class="rjbox" style="display:flex;flex-direction:column;gap:8px;padding:0 0 12px">
+        <label for="${id}" class="small">${esc(t('admin.rejectReason'))}<textarea id="${id}" maxlength="300"></textarea></label>
+        <div class="row"><button class="btn primary" data-decide="${esc(b.dataset.decide)}" data-d="reject" data-confirm="1">${esc(t('admin.confirmReject'))}</button>
+        <button class="btn" data-noteback="1">${esc(t('admin.noteBack'))}</button></div></div>`);
+      const ta = $('#' + id); if (ta) ta.focus();
+      return;
+    }
+    if (!b.dataset.confirm) { const ta = box.querySelector('textarea'); if (ta) ta.focus(); return; }
+    note = (box.querySelector('textarea') || {}).value || '';
+    if (!note.trim()) { err($('#adErr'), t('admin.needReason')); box.querySelector('textarea').focus(); return; }
+  }
   b.disabled = true; err($('#adErr'));
-  try { await api('adminDecide', { pin: adminPin, id: b.dataset.decide, decision: b.dataset.d }, 60000); await runAdmin(); }
+  try { await api('adminDecide', { pin: adminPin, id: b.dataset.decide, decision: b.dataset.d, note: note.trim() }, 60000); await runAdmin(); }
   catch (x) { err($('#adErr'), x.message); b.disabled = false; }
 });
 
@@ -922,6 +957,7 @@ $('#sysLockedBtn').addEventListener('click', () => { sysPin = $('#sysCode').valu
 function cellView(c) {
   if (c.s === 'present') return `<span class="mono">${esc(c.time)}</span>`;
   if (c.s === 'late') return `<span class="mono" style="color:var(--late);font-weight:600">${esc(c.time)}</span>`;
+  if (c.s === 'offsite') return `<span class="pill p-ok">${esc(t('sys.offsite'))}</span>`;
   if (c.s === 'leave') return `<span class="pill p-leave">${esc(t('kind.' + c.kind))}</span>`;
   if (c.s === 'absent') return `<span class="pill p-bad">${esc(t('sys.absent'))}</span>`;
   if (c.s === 'off') return '<span class="muted">–</span>';
@@ -930,6 +966,7 @@ function cellView(c) {
 function cellText(c) {
   if (c.s === 'present') return c.time;
   if (c.s === 'late') return c.time + ' (' + t('sys.late') + ')';
+  if (c.s === 'offsite') return t('kind.offsite');
   if (c.s === 'leave') return t('kind.' + c.kind);
   if (c.s === 'absent') return t('sys.absent');
   return c.s === 'off' ? '-' : '';
@@ -982,6 +1019,7 @@ function slotCell(r) {
 function inCells(r) {
   if (r.in) return slotCell(r.in);
   const pill = (cls, txt) => `<td class="mono">—</td><td><span class="pill ${cls}">${esc(txt)}</span></td>`;
+  if (r.state === 'offsite') return pill('p-ok', t('kind.offsite')) + `<td class="muted small">${esc([r.leave.place, r.leave.reason].filter(Boolean).join(' · '))}</td>`;
   if (r.state === 'leave') return pill('p-leave', leaveLabel(r.leave)) + `<td class="muted small">${esc(r.leave.reason || '')}</td>`;
   if (r.state === 'absent') return pill('p-bad', t('admin.absentPill')) + '<td></td>';
   if (r.state === 'off') return pill('p-none', offLabel(r.off)) + '<td></td>';
