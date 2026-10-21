@@ -360,7 +360,7 @@ const D = {
     'admin.approvals': 'รออนุมัติ', 'admin.approve': 'อนุมัติ', 'admin.reject': 'ไม่อนุมัติ', 'admin.reqNew': 'ขอลา', 'admin.reqCancel': 'ขอยกเลิกใบลา',
     'admin.full': 'วันที่เต็มแล้ว: {0}', 'admin.noPending': 'ไม่มีรายการรออนุมัติ',
     'sys.title': 'Admin ระบบ', 'sys.code': 'รหัส Admin ระบบ', 'sys.week': 'สัปดาห์ที่มีวันที่', 'sys.report': 'รายงานประจำสัปดาห์',
-    'sys.locked': 'บัญชีที่ถูกล็อก', 'sys.range': 'สัปดาห์ {0} – {1}', 'sys.csv': 'ดาวน์โหลด CSV', 'sys.present': 'มา', 'sys.late': 'สาย',
+    'sys.locked': 'บัญชีที่ถูกล็อก', 'sys.range': 'สัปดาห์ {0} – {1}', 'sys.csv': 'ดาวน์โหลด CSV', 'sys.pdf': 'ดาวน์โหลด PDF', 'sys.pdfBusy': 'กำลังสร้าง PDF…', 'sys.inout': 'แต่ละช่อง: บรรทัดบน = เวลาเข้า · บรรทัดล่าง = เวลาออก', 'sys.present': 'มา', 'sys.late': 'สาย',
     'sys.leave': 'ลา', 'sys.absent': 'ขาด', 'sys.outside': 'นอกรัศมี', 'sys.noLocked': 'ไม่มีบัญชีที่ถูกล็อก', 'sys.unlock': 'ปลดล็อค',
     'sys.resetPin': 'ตั้ง PIN ใหม่', 'sys.newPinPrompt': 'ตั้ง PIN ใหม่ให้ครูคนนี้ (ตัวเลข 4–6 หลัก) บัญชีจะถูกปลดล็อคด้วย'
   },
@@ -437,7 +437,7 @@ const D = {
     'admin.approvals': 'Awaiting approval', 'admin.approve': 'Approve', 'admin.reject': 'Reject', 'admin.reqNew': 'Leave request', 'admin.reqCancel': 'Cancel leave request',
     'admin.full': 'Full days: {0}', 'admin.noPending': 'Nothing is waiting for approval',
     'sys.title': 'System admin', 'sys.code': 'System admin code', 'sys.week': 'Week containing date', 'sys.report': 'Weekly report',
-    'sys.locked': 'Locked accounts', 'sys.range': 'Week {0} – {1}', 'sys.csv': 'Download CSV', 'sys.present': 'Present', 'sys.late': 'Late',
+    'sys.locked': 'Locked accounts', 'sys.range': 'Week {0} – {1}', 'sys.csv': 'Download CSV', 'sys.pdf': 'Download PDF', 'sys.pdfBusy': 'Creating PDF…', 'sys.inout': 'Each cell: top = check-in time · bottom = check-out time', 'sys.present': 'Present', 'sys.late': 'Late',
     'sys.leave': 'Leave', 'sys.absent': 'Absent', 'sys.outside': 'Outside', 'sys.noLocked': 'No locked accounts', 'sys.unlock': 'Unlock',
     'sys.resetPin': 'Set new PIN', 'sys.newPinPrompt': 'Set a new PIN for this teacher (4–6 digits). The account will also be unlocked.'
   }
@@ -955,8 +955,9 @@ const runSysLocked = () => runSys('sysLocked', {}, 'locked', renderLocked);
 $('#sysForm').addEventListener('submit', e => { e.preventDefault(); sysPin = $('#sysCode').value.trim(); runSysWeek(); });
 $('#sysLockedBtn').addEventListener('click', () => { sysPin = $('#sysCode').value.trim(); if (sysPin) runSysLocked(); });
 function cellView(c) {
-  if (c.s === 'present') return `<span class="mono">${esc(c.time)}</span>`;
-  if (c.s === 'late') return `<span class="mono" style="color:var(--late);font-weight:600">${esc(c.time)}</span>`;
+  const outV = c => c.out ? `<span${c.early ? ' style="color:var(--late);font-weight:600"' : ''}>${esc(c.out)}</span>` : '<span class="muted">–</span>';
+  if (c.s === 'present') return `<span class="mono">${esc(c.time)}<br>${outV(c)}</span>`;
+  if (c.s === 'late') return `<span class="mono"><span style="color:var(--late);font-weight:600">${esc(c.time)}</span><br>${outV(c)}</span>`;
   if (c.s === 'offsite') return `<span class="pill p-ok">${esc(t('sys.offsite'))}</span>`;
   if (c.s === 'leave') return `<span class="pill p-leave">${esc(t('kind.' + c.kind))}</span>`;
   if (c.s === 'absent') return `<span class="pill p-bad">${esc(t('sys.absent'))}</span>`;
@@ -964,8 +965,7 @@ function cellView(c) {
   return '<span class="muted">·</span>';
 }
 function cellText(c) {
-  if (c.s === 'present') return c.time;
-  if (c.s === 'late') return c.time + ' (' + t('sys.late') + ')';
+  if (c.s === 'present' || c.s === 'late') return c.time + (c.s === 'late' ? ' (' + t('sys.late') + ')' : '') + ' – ' + (c.out || '-');
   if (c.s === 'offsite') return t('kind.offsite');
   if (c.s === 'leave') return t('kind.' + c.kind);
   if (c.s === 'absent') return t('sys.absent');
@@ -973,9 +973,9 @@ function cellText(c) {
 }
 function downloadCsv(j) {
   const q = v => '"' + String(v).replace(/"/g, '""') + '"';
-  const head = [t('admin.code'), t('admin.name')].concat(j.days, [t('sys.present'), t('sys.late'), t('sys.leave'), t('sys.absent'), t('sys.outside')]);
+  const head = [t('admin.code'), t('admin.name')].concat(j.days, [t('sys.present'), t('sys.late'), t('sys.leave'), t('sys.absent')]);
   const lines = [head.map(q).join(',')].concat(j.rows.map(r =>
-    [r.code, r.name].concat(r.cells.map(cellText), [r.present, r.late, r.leave, r.absent, r.outside]).map(q).join(',')));
+    [r.code, r.name].concat(r.cells.map(cellText), [r.present, r.late, r.leave, r.absent]).map(q).join(',')));
   const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = 'weekly-' + j.days[0] + '.csv';
@@ -987,13 +987,26 @@ function renderSys(j) {
   const tot = j.totals;
   $('#sysOut').innerHTML = `
   <p class="muted" style="margin:0 0 10px">${esc((j.school ? j.school + ' · ' : '') + t('sys.range', fmtDay(j.days[0]), fmtDay(j.days[6])))}</p>
-  <div class="stats">${stat(t('sys.present'), tot.present)}${stat(t('sys.late'), tot.late)}${stat(t('sys.leave'), tot.leave)}${stat(t('sys.absent'), tot.absent)}${stat(t('sys.outside'), tot.outside)}</div>
-  <div class="row" style="margin-top:12px"><button class="btn" id="sysCsv" type="button">${esc(t('sys.csv'))}</button></div>
+  <div class="stats">${stat(t('sys.present'), tot.present)}${stat(t('sys.late'), tot.late)}${stat(t('sys.leave'), tot.leave)}${stat(t('sys.absent'), tot.absent)}</div>
+  <div class="row" style="margin-top:12px"><button class="btn primary" id="sysPdf" type="button">${esc(t('sys.pdf'))}</button><button class="btn" id="sysCsv" type="button">${esc(t('sys.csv'))}</button></div>
+  <p class="muted small" style="margin:8px 0 0">${esc(t('sys.inout'))}</p>
   <div class="tbl" style="margin-top:12px"><table>
-    <thead><tr><th>${esc(t('admin.name'))}</th>${j.days.map(d => `<th>${esc(dh(d))}</th>`).join('')}<th>${esc(t('sys.present'))}</th><th>${esc(t('sys.late'))}</th><th>${esc(t('sys.leave'))}</th><th>${esc(t('sys.absent'))}</th><th>${esc(t('sys.outside'))}</th></tr></thead>
-    <tbody>${j.rows.length ? j.rows.map(r => `<tr><td>${esc(r.name)}</td>${r.cells.map(c => `<td>${cellView(c)}</td>`).join('')}<td class="mono">${r.present}</td><td class="mono">${r.late}</td><td class="mono">${r.leave}</td><td class="mono">${r.absent}</td><td class="mono">${r.outside}</td></tr>`).join('') : `<tr><td colspan="13" class="muted">${esc(t('admin.empty'))}</td></tr>`}</tbody>
+    <thead><tr><th>${esc(t('admin.name'))}</th>${j.days.map(d => `<th>${esc(dh(d))}</th>`).join('')}<th>${esc(t('sys.present'))}</th><th>${esc(t('sys.late'))}</th><th>${esc(t('sys.leave'))}</th><th>${esc(t('sys.absent'))}</th></tr></thead>
+    <tbody>${j.rows.length ? j.rows.map(r => `<tr><td>${esc(r.name)}</td>${r.cells.map(c => `<td>${cellView(c)}</td>`).join('')}<td class="mono">${r.present}</td><td class="mono">${r.late}</td><td class="mono">${r.leave}</td><td class="mono">${r.absent}</td></tr>`).join('') : `<tr><td colspan="12" class="muted">${esc(t('admin.empty'))}</td></tr>`}</tbody>
   </table></div>`;
   $('#sysCsv').onclick = () => downloadCsv(j);
+  $('#sysPdf').onclick = async () => {
+    const b = $('#sysPdf'); b.disabled = true; b.textContent = t('sys.pdfBusy'); err($('#sysErr'));
+    try {
+      const r = await api('sysWeekPdf', { pin: sysPin, date: j.days[0] }, 90000);
+      const bin = atob(r.data), u8 = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([u8], { type: 'application/pdf' })); a.download = r.name || ('weekly-' + j.days[0] + '.pdf');
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    } catch (x) { err($('#sysErr'), x.message); }
+    b.disabled = false; b.textContent = t('sys.pdf');
+  };
 }
 function renderLocked(j) {
   const rows = j.locked.map(x => `<div class="lv"><div><b>${esc(x.name)}</b> <span class="mono muted">${esc(x.code)}</span></div><div class="row" style="flex:none"><button class="btn primary" data-unlock="${esc(x.code)}">${esc(t('sys.unlock'))}</button><button class="btn" data-resetpin="${esc(x.code)}">${esc(t('sys.resetPin'))}</button></div></div>`).join('');
