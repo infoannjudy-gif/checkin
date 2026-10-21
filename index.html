@@ -177,6 +177,10 @@ tr:last-child td{border-bottom:0}
     <div id="dStatus"></div>
     <div class="muted small" id="dDist"></div>
     <img id="dImg" alt="">
+    <div class="note" id="dLeave" hidden style="width:100%;text-align:left;display:flex;flex-direction:column;gap:10px">
+      <div id="dLeaveTxt"></div>
+      <div class="row" id="dLeaveBtns"><button class="btn primary" id="dLeaveCancel" type="button" data-i="lvq.cancel"></button><button class="btn" id="dLeaveKeep" type="button" data-i="lvq.keep"></button></div>
+    </div>
     <button class="btn primary" id="doneBtn" style="margin-top:8px;width:100%" data-i="save.ok"></button>
   </div>
   <div id="saveFail" hidden style="display:flex;flex-direction:column;gap:12px">
@@ -360,7 +364,7 @@ const D = {
     'admin.approvals': 'รออนุมัติ', 'admin.approve': 'อนุมัติ', 'admin.reject': 'ไม่อนุมัติ', 'admin.reqNew': 'ขอลา', 'admin.reqCancel': 'ขอยกเลิกใบลา',
     'admin.full': 'วันที่เต็มแล้ว: {0}', 'admin.noPending': 'ไม่มีรายการรออนุมัติ',
     'sys.title': 'Admin ระบบ', 'sys.code': 'รหัส Admin ระบบ', 'sys.week': 'สัปดาห์ที่มีวันที่', 'sys.report': 'รายงานประจำสัปดาห์',
-    'sys.locked': 'บัญชีที่ถูกล็อก', 'sys.range': 'สัปดาห์ {0} – {1}', 'sys.csv': 'ดาวน์โหลด CSV', 'sys.pdf': 'ดาวน์โหลด PDF', 'sys.pdfBusy': 'กำลังสร้าง PDF…', 'sys.inout': 'แต่ละช่อง: บรรทัดบน = เวลาเข้า · บรรทัดล่าง = เวลาออก', 'sys.present': 'มา', 'sys.late': 'สาย',
+    'sys.locked': 'บัญชีที่ถูกล็อก', 'sys.range': 'สัปดาห์ {0} – {1}', 'sys.csv': 'ดาวน์โหลด CSV', 'lvq.ask': 'วันนี้คุณมีใบ{0}อยู่ แต่มาทำงาน ต้องการยกเลิกใบลานี้หรือไม่? (ถ้าไม่ยกเลิก จะยังหักวันลา)', 'lvq.multi': 'วันนี้คุณมีใบ{0}อยู่ แต่มาทำงาน ใบลานี้ครอบหลายวัน กรุณาแจ้งผู้บริหารเพื่อปรับใบลา', 'lvq.cancel': 'ยกเลิกใบลา', 'lvq.keep': 'ไม่ยกเลิก', 'lvq.done': 'ยกเลิกใบลาแล้ว ไม่หักวันลาของวันนี้', 'lvq.hasLeave': 'มีใบ{0}', 'sys.pdf': 'ดาวน์โหลด PDF', 'sys.pdfBusy': 'กำลังสร้าง PDF…', 'sys.inout': 'แต่ละช่อง: บรรทัดบน = เวลาเข้า · บรรทัดล่าง = เวลาออก', 'sys.present': 'มา', 'sys.late': 'สาย',
     'sys.leave': 'ลา', 'sys.absent': 'ขาด', 'sys.outside': 'นอกรัศมี', 'sys.noLocked': 'ไม่มีบัญชีที่ถูกล็อก', 'sys.unlock': 'ปลดล็อค',
     'sys.resetPin': 'ตั้ง PIN ใหม่', 'sys.newPinPrompt': 'ตั้ง PIN ใหม่ให้ครูคนนี้ (ตัวเลข 4–6 หลัก) บัญชีจะถูกปลดล็อคด้วย'
   },
@@ -437,7 +441,7 @@ const D = {
     'admin.approvals': 'Awaiting approval', 'admin.approve': 'Approve', 'admin.reject': 'Reject', 'admin.reqNew': 'Leave request', 'admin.reqCancel': 'Cancel leave request',
     'admin.full': 'Full days: {0}', 'admin.noPending': 'Nothing is waiting for approval',
     'sys.title': 'System admin', 'sys.code': 'System admin code', 'sys.week': 'Week containing date', 'sys.report': 'Weekly report',
-    'sys.locked': 'Locked accounts', 'sys.range': 'Week {0} – {1}', 'sys.csv': 'Download CSV', 'sys.pdf': 'Download PDF', 'sys.pdfBusy': 'Creating PDF…', 'sys.inout': 'Each cell: top = check-in time · bottom = check-out time', 'sys.present': 'Present', 'sys.late': 'Late',
+    'sys.locked': 'Locked accounts', 'sys.range': 'Week {0} – {1}', 'sys.csv': 'Download CSV', 'lvq.ask': 'You have a {0} request for today but came to work. Cancel the leave request? (If not, the day is still deducted.)', 'lvq.multi': 'You have a {0} request covering today but came to work. It spans several days, so please ask the administrator to adjust it.', 'lvq.cancel': 'Cancel leave', 'lvq.keep': 'Keep it', 'lvq.done': 'Leave cancelled. Today will not be deducted.', 'lvq.hasLeave': 'Has {0} request', 'sys.pdf': 'Download PDF', 'sys.pdfBusy': 'Creating PDF…', 'sys.inout': 'Each cell: top = check-in time · bottom = check-out time', 'sys.present': 'Present', 'sys.late': 'Late',
     'sys.leave': 'Leave', 'sys.absent': 'Absent', 'sys.outside': 'Outside', 'sys.noLocked': 'No locked accounts', 'sys.unlock': 'Unlock',
     'sys.resetPin': 'Set new PIN', 'sys.newPinPrompt': 'Set a new PIN for this teacher (4–6 digits). The account will also be unlocked.'
   }
@@ -711,12 +715,31 @@ async function send() {
     $('#dStatus').innerHTML = pillFor(r.status);
     $('#dDist').textContent = r.dist != null ? t('save.dist', dText(r.dist)) : '';
     $('#dImg').src = S.photo; $('#dImg').alt = t('save.imgAlt');
+    showLeaveQ(j.fullLeave || null);
     $('#saving').hidden = true; $('#saved').hidden = false;
   } catch (x) {
     $('#saving').hidden = true; $('#saveFail').hidden = false; err($('#saveErr'), x.message);
   } finally { clearTimeout(slow); }
 }
 $('#doneBtn').addEventListener('click', () => show('vHome'));
+/* มาทำงานในวันที่มีใบลาทั้งวัน: ถามว่าจะยกเลิกใบลาหรือไม่ */
+let leaveQ = null;
+function showLeaveQ(fl) {
+  leaveQ = fl; const box = $('#dLeave'); box.hidden = !fl; if (!fl) return;
+  const k = L === 'en' ? fl.en : fl.th;
+  $('#dLeaveTxt').textContent = t(fl.single ? 'lvq.ask' : 'lvq.multi', k);
+  $('#dLeaveBtns').hidden = !fl.single;
+  $('#dLeaveCancel').disabled = false;
+}
+$('#dLeaveKeep').addEventListener('click', () => { $('#dLeave').hidden = true; });
+$('#dLeaveCancel').addEventListener('click', async () => {
+  if (!leaveQ || !leaveQ.id) return;
+  const b = $('#dLeaveCancel'); b.disabled = true;
+  try {
+    await api('leaveCancel', { code: S.creds.code, pin: S.creds.pin, id: leaveQ.id }, 60000);
+    $('#dLeaveTxt').textContent = t('lvq.done'); $('#dLeaveBtns').hidden = true; refreshHome();
+  } catch (x) { $('#dLeaveTxt').textContent = x.message; b.disabled = false; }
+});
 $('#retryBtn').addEventListener('click', send);
 $('#failBack').addEventListener('click', () => show('vHome'));
 
@@ -955,9 +978,10 @@ const runSysLocked = () => runSys('sysLocked', {}, 'locked', renderLocked);
 $('#sysForm').addEventListener('submit', e => { e.preventDefault(); sysPin = $('#sysCode').value.trim(); runSysWeek(); });
 $('#sysLockedBtn').addEventListener('click', () => { sysPin = $('#sysCode').value.trim(); if (sysPin) runSysLocked(); });
 function cellView(c) {
+  const lvV = c => c.lv ? `<br><span class="small" style="color:var(--leave)">${esc((c.lv.full ? t('lvq.hasLeave', t('kind.' + c.lv.kind)) : t('kind.' + c.lv.kind) + ' ' + c.lv.time))}</span>` : '';
   const outV = c => c.out ? `<span${c.early ? ' style="color:var(--late);font-weight:600"' : ''}>${esc(c.out)}</span>` : '<span class="muted">–</span>';
-  if (c.s === 'present') return `<span class="mono">${esc(c.time)}<br>${outV(c)}</span>`;
-  if (c.s === 'late') return `<span class="mono"><span style="color:var(--late);font-weight:600">${esc(c.time)}</span><br>${outV(c)}</span>`;
+  if (c.s === 'present') return `<span class="mono">${esc(c.time)}<br>${outV(c)}</span>${lvV(c)}`;
+  if (c.s === 'late') return `<span class="mono"><span style="color:var(--late);font-weight:600">${esc(c.time)}</span><br>${outV(c)}</span>${lvV(c)}`;
   if (c.s === 'offsite') return `<span class="pill p-ok">${esc(t('sys.offsite'))}</span>`;
   if (c.s === 'leave') return `<span class="pill p-leave">${esc(t('kind.' + c.kind))}</span>`;
   if (c.s === 'absent') return `<span class="pill p-bad">${esc(t('sys.absent'))}</span>`;
@@ -965,7 +989,8 @@ function cellView(c) {
   return '<span class="muted">·</span>';
 }
 function cellText(c) {
-  if (c.s === 'present' || c.s === 'late') return c.time + (c.s === 'late' ? ' (' + t('sys.late') + ')' : '') + ' – ' + (c.out || '-');
+  if (c.s === 'present' || c.s === 'late') return c.time + (c.s === 'late' ? ' (' + t('sys.late') + ')' : '') + ' – ' + (c.out || '-') +
+    (c.lv ? ' [' + (c.lv.full ? t('lvq.hasLeave', t('kind.' + c.lv.kind)) : t('kind.' + c.lv.kind) + ' ' + c.lv.time) + ']' : '');
   if (c.s === 'offsite') return t('kind.offsite');
   if (c.s === 'leave') return t('kind.' + c.kind);
   if (c.s === 'absent') return t('sys.absent');
@@ -1025,12 +1050,12 @@ $('#sysOut').addEventListener('click', async e => {
   catch (x) { err($('#sysErr'), x.message); u.disabled = false; }
 });
 
-function slotCell(r) {
+function slotCell(r, extra) {
   if (!r) return '<td class="mono">—</td><td></td><td></td>';
-  return `<td class="mono">${esc(r.time)}</td><td>${pillFor(r.status)}</td><td>${dText(r.dist)}${r.photoId ? ` <button class="link" data-photo="${esc(r.photoId)}">${esc(t('admin.photo'))}</button>` : ''}</td>`;
+  return `<td class="mono">${esc(r.time)}</td><td>${pillFor(r.status)}${extra || ''}</td><td>${dText(r.dist)}${r.photoId ? ` <button class="link" data-photo="${esc(r.photoId)}">${esc(t('admin.photo'))}</button>` : ''}</td>`;
 }
 function inCells(r) {
-  if (r.in) return slotCell(r.in);
+  if (r.in) return slotCell(r.in, r.leave && r.leave.kind !== 'offsite' && !r.leave.time ? ` <span class="pill p-late">${esc(t('lvq.hasLeave', leaveLabel(r.leave)))}</span>` : '');
   const pill = (cls, txt) => `<td class="mono">—</td><td><span class="pill ${cls}">${esc(txt)}</span></td>`;
   if (r.state === 'offsite') return pill('p-ok', t('kind.offsite')) + `<td class="muted small">${esc([r.leave.place, r.leave.reason].filter(Boolean).join(' · '))}</td>`;
   if (r.state === 'leave') return pill('p-leave', leaveLabel(r.leave)) + `<td class="muted small">${esc(r.leave.reason || '')}</td>`;
