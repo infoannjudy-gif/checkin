@@ -392,14 +392,14 @@ const D = {
     'sys.title': 'Admin ระบบ', 'sys.code': 'รหัส Admin ระบบ', 'sys.week': 'สัปดาห์ที่มีวันที่', 'sys.report': 'รายงานประจำสัปดาห์',
     'sys.locked': 'บัญชีที่ถูกล็อก', 'sys.range': 'สัปดาห์ {0} – {1}', 'sys.csv': 'ดาวน์โหลด CSV', 'lvq.ask': 'วันนี้คุณมีใบ{0}อยู่ แต่มาทำงาน ต้องการยกเลิกใบลานี้หรือไม่? (ถ้าไม่ยกเลิก จะยังหักวันลา)', 'lvq.multi': 'วันนี้คุณมีใบ{0}อยู่ แต่มาทำงาน ใบลานี้ครอบหลายวัน กรุณาแจ้งผู้บริหารเพื่อปรับใบลา', 'lvq.cancel': 'ยกเลิกใบลา', 'lvq.keep': 'ไม่ยกเลิก', 'lvq.done': 'ยกเลิกใบลาแล้ว ไม่หักวันลาของวันนี้', 'lvq.hasLeave': 'มีใบ{0}', 'sys.pdf': 'ดาวน์โหลด PDF', 'sys.pdfBusy': 'กำลังสร้าง PDF…', 'sys.inout': 'แต่ละช่อง: บรรทัดบน = เวลาเข้า · บรรทัดล่าง = เวลาออก', 'sys.present': 'มา', 'sys.late': 'สาย',
     'sys.leave': 'ลา', 'sys.absent': 'ขาด', 'sys.outside': 'นอกรัศมี', 'sys.noLocked': 'ไม่มีบัญชีที่ถูกล็อก', 'sys.unlock': 'ปลดล็อค',
-    'duty.btn': 'แลกเวร / ให้เพื่อนทำแทน', 'duty.title': 'แลกเวร', 'duty.mine': 'เวรของฉันที่จะถึง', 'duty.pickHint': 'กดปุ่ม "แลก" ที่เวรที่ต้องการ', 'duty.none': 'ไม่มีเวรที่ระบุวันที่ตั้งแต่วันนี้',
+    'duty.btn': 'แลกเวร / ให้เพื่อนทำแทน', 'duty.title': 'แลกเวร', 'duty.mine': 'เวรของฉันที่จะถึง', 'duty.pickHint': 'กดปุ่ม "แลก" ที่เวรที่ต้องการ', 'duty.none': 'ไม่มีเวรในช่วง 8 สัปดาห์ข้างหน้า', 'duty.weekly': 'เวรประจำ',
     'duty.pick': 'แลก', 'duty.formH': 'รายละเอียดการแลก', 'duty.picked': 'เวรของคุณ: {0}', 'duty.mode': 'แบบ', 'duty.modeSwap': 'แลกเวรกัน', 'duty.modeCover': 'ให้เพื่อนทำแทน (ไม่แลกคืน)',
     'duty.partner': 'ครูที่จะรับเวรของคุณ', 'duty.choose': '— เลือกครู —', 'duty.chooseDuty': '— เลือกเวร —', 'duty.in': 'เข้าไม่เกิน {0}', 'duty.out': 'ออกหลัง {0}', 'duty.busy': ' (มีเวรวันนั้นแล้ว)', 'duty.noDuty': ' (ไม่มีเวรให้แลก)', 'duty.their': 'เวรของเพื่อนที่คุณจะทำแทน', 'duty.theirBusy': ' (คุณมีเวรวันนั้นแล้ว)',
     'duty.submit': 'ยืนยันการแลกเวร', 'duty.cancelPick': 'ยกเลิก', 'duty.busyTxt': 'กำลังบันทึก…', 'duty.need': 'เลือกครูและเวรให้ครบ',
     'duty.sumGive': '{0}: {1} ทำแทนคุณ', 'duty.sumTake': '{0}: คุณทำแทน {1}', 'duty.confirm': 'ยืนยันการแลกเวร?\n{0}\nมีผลทันที และ {1} จะเห็นแจ้งเตือนในแอป',
     'duty.done': 'แลกเวรเรียบร้อยแล้ว มีผลทันที', 'duty.history': 'ประวัติการแลกเวรของฉัน', 'duty.noHist': 'ยังไม่มีประวัติ',
     'duty.hSwap': 'แลกเวร', 'duty.hCover': 'ให้ทำแทน', 'duty.you': 'คุณ', 'duty.news': 'มีการแลกเวรกับคุณ', 'duty.dateBy': 'ทำรายการโดย {0} · {1}',
-    'duty.note': 'แลกได้เฉพาะเวรที่กำหนดเป็นวันที่ ตั้งแต่วันนี้เป็นต้นไป มีผลทันทีโดยไม่ต้องรออนุมัติ ระบบบันทึกประวัติไว้ในชีต "แลกเวร" ถ้าแลกผิด ให้แลกกลับ หรือแจ้งผู้ดูแลระบบ',
+    'duty.note': 'แลกล่วงหน้าได้ทั้งเวรที่กำหนดเป็นวันที่ และเวรประจำสัปดาห์ (ล่วงหน้า 8 สัปดาห์ แลกทีละวัน) มีผลทันทีโดยไม่ต้องรออนุมัติ ระบบบันทึกประวัติไว้ในชีต "แลกเวร" ถ้าแลกผิด ให้แลกกลับ หรือแจ้งผู้ดูแลระบบ',
     'sys.resetPin': 'ตั้ง PIN ใหม่', 'sys.newPinPrompt': 'ตั้ง PIN ใหม่ให้ครูคนนี้ (ตัวเลข 4–6 หลัก) บัญชีจะถูกปลดล็อคด้วย'
   },
   en: {
@@ -477,14 +477,14 @@ const D = {
     'sys.title': 'System admin', 'sys.code': 'System admin code', 'sys.week': 'Week containing date', 'sys.report': 'Weekly report',
     'sys.locked': 'Locked accounts', 'sys.range': 'Week {0} – {1}', 'sys.csv': 'Download CSV', 'lvq.ask': 'You have a {0} request for today but came to work. Cancel the leave request? (If not, the day is still deducted.)', 'lvq.multi': 'You have a {0} request covering today but came to work. It spans several days, so please ask the administrator to adjust it.', 'lvq.cancel': 'Cancel leave', 'lvq.keep': 'Keep it', 'lvq.done': 'Leave cancelled. Today will not be deducted.', 'lvq.hasLeave': 'Has {0} request', 'sys.pdf': 'Download PDF', 'sys.pdfBusy': 'Creating PDF…', 'sys.inout': 'Each cell: top = check-in time · bottom = check-out time', 'sys.present': 'Present', 'sys.late': 'Late',
     'sys.leave': 'Leave', 'sys.absent': 'Absent', 'sys.outside': 'Outside', 'sys.noLocked': 'No locked accounts', 'sys.unlock': 'Unlock',
-    'duty.btn': 'Swap duty / ask a colleague to cover', 'duty.title': 'Swap duty', 'duty.mine': 'My upcoming duties', 'duty.pickHint': 'Tap "Swap" next to the duty you want to change', 'duty.none': 'No dated duties from today onwards',
+    'duty.btn': 'Swap duty / ask a colleague to cover', 'duty.title': 'Swap duty', 'duty.mine': 'My upcoming duties', 'duty.pickHint': 'Tap "Swap" next to the duty you want to change', 'duty.none': 'No duties in the next 8 weeks', 'duty.weekly': 'Weekly',
     'duty.pick': 'Swap', 'duty.formH': 'Swap details', 'duty.picked': 'Your duty: {0}', 'duty.mode': 'Type', 'duty.modeSwap': 'Swap duties', 'duty.modeCover': 'Cover (no swap back)',
     'duty.partner': 'Colleague who takes your duty', 'duty.choose': '— Choose a teacher —', 'duty.chooseDuty': '— Choose a duty —', 'duty.in': 'in by {0}', 'duty.out': 'out after {0}', 'duty.busy': ' (already on duty that day)', 'duty.noDuty': ' (no duties to swap)', 'duty.their': 'Their duty that you will take', 'duty.theirBusy': ' (you already have a duty that day)',
     'duty.submit': 'Confirm swap', 'duty.cancelPick': 'Cancel', 'duty.busyTxt': 'Saving…', 'duty.need': 'Choose a teacher and a duty',
     'duty.sumGive': '{0}: {1} covers for you', 'duty.sumTake': '{0}: you cover for {1}', 'duty.confirm': 'Confirm this swap?\n{0}\nIt takes effect immediately and {1} will see a notice in the app.',
     'duty.done': 'Duty swapped. It takes effect immediately.', 'duty.history': 'My swap history', 'duty.noHist': 'No history yet',
     'duty.hSwap': 'Swap', 'duty.hCover': 'Cover', 'duty.you': 'you', 'duty.news': 'A duty was swapped with you', 'duty.dateBy': 'By {0} · {1}',
-    'duty.note': 'Only duties with a specific date, from today onwards, can be swapped. Swaps take effect immediately without approval and are recorded in the "แลกเวร" sheet. If you made a mistake, swap back or contact the system admin.',
+    'duty.note': 'You can swap dated duties and weekly duties in advance (up to 8 weeks ahead, one day at a time). Swaps take effect immediately without approval and are recorded in the "แลกเวร" sheet. If you made a mistake, swap back or contact the system admin.',
     'sys.resetPin': 'Set new PIN', 'sys.newPinPrompt': 'Set a new PIN for this teacher (4–6 digits). The account will also be unlocked.'
   }
 };
@@ -831,7 +831,7 @@ function renderDuty() {
   const d = dutyData || { mine: [], teachers: [], history: [] };
   $('#dyMine').innerHTML = d.mine.length ? d.mine.map((m, i) => {
     const sel = dutyPick && dutyPick.date === m.date && dutyPick.name === m.name;
-    return `<div class="lv${sel ? ' sel' : ''}"><div><b>${esc(m.name)}</b><div>${esc(fmtDay(m.date))}${dutyTime(m) ? ` · ${esc(dutyTime(m))}` : ''}</div></div><button class="btn" type="button" data-pick="${i}">${esc(t('duty.pick'))}</button></div>`;
+    return `<div class="lv${sel ? ' sel' : ''}"><div><b>${esc(m.name)}</b>${m.weekly ? ` <span class="pill p-none">${esc(t('duty.weekly'))}</span>` : ''}<div>${esc(fmtDay(m.date))}${dutyTime(m) ? ` · ${esc(dutyTime(m))}` : ''}</div></div><button class="btn" type="button" data-pick="${i}">${esc(t('duty.pick'))}</button></div>`;
   }).join('') : `<p class="muted small" style="margin:0">${esc(t('duty.none'))}</p>`;
   $('#dyHist').innerHTML = d.history.length ? d.history.map(x => `<div class="lv"><div><span class="pill ${x.mode === 'swap' ? 'p-ok' : 'p-leave'}">${esc(t(x.mode === 'swap' ? 'duty.hSwap' : 'duty.hCover'))}</span>${swapLines(x).map(l => `<div>${esc(l)}</div>`).join('')}<div class="muted small">${esc(t('duty.dateBy', who(x.by), x.at))}</div></div></div>`).join('')
     : `<p class="muted small" style="margin:0">${esc(t('duty.noHist'))}</p>`;
