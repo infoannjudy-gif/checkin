@@ -103,6 +103,7 @@ tr:last-child td{border-bottom:0}
 .scrim .box{background:var(--surface);border-radius:14px;padding:14px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:10px}
 .scrim img{width:100%;border-radius:10px}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.lv.sel{background:var(--accent-soft);border-radius:10px;padding:10px;margin:0 -10px}
 </style>
 </head>
 <body>
@@ -134,6 +135,7 @@ tr:last-child td{border-bottom:0}
   <div class="note" id="leaveNote" hidden></div>
   <div class="note soft" id="offNote" hidden></div>
   <div class="note" id="pinNote" hidden></div>
+  <div class="note" id="swapNote" hidden></div>
   <div class="card" id="balHome" hidden></div>
   <div class="clock"><div class="t" id="clk">--:--</div><div class="d" id="clkD"></div></div>
   <div class="slots">
@@ -143,6 +145,7 @@ tr:last-child td{border-bottom:0}
   <div class="err" id="homeErr" hidden></div>
   <button class="btn primary big" id="punchBtn"></button>
   <button class="btn" id="leaveBtn" data-i="home.leave"></button>
+  <button class="btn" id="dutyBtn" data-i="duty.btn"></button>
   <button class="link" id="pinBtn" data-i="home.pin"></button>
   <p class="muted small" style="margin:0;text-align:center" id="rule"></p>
 </main>
@@ -219,6 +222,29 @@ tr:last-child td{border-bottom:0}
     <button class="btn primary big" id="lvBtn" type="submit" data-i="leave.submit"></button>
   </form>
   <div class="card"><h3 style="font-size:18px" data-i="leave.mine"></h3><div id="lvList"></div></div>
+</main>
+
+<!-- ===== แลกเวร / Swap duty ===== -->
+<main class="app" id="vDuty" hidden>
+  <div class="top"><h2 style="font-size:20px" data-i="duty.title"></h2><div class="acts"><button class="link lang" data-lang type="button"></button><button class="link" id="dutyBack" data-i="leave.back"></button></div></div>
+  <div class="ok" id="dyOk" hidden></div>
+  <div class="err" id="dyLoadErr" hidden></div>
+  <div class="card"><h3 style="font-size:18px" data-i="duty.mine"></h3><p class="muted small" style="margin:0" data-i="duty.pickHint"></p><div id="dyMine"></div></div>
+  <form class="card" id="dutyForm" hidden>
+    <h3 style="font-size:18px" data-i="duty.formH"></h3>
+    <div class="note soft" id="dyPicked"></div>
+    <label for="dyMode"><span data-i="duty.mode"></span>
+      <select id="dyMode"><option value="swap" data-i="duty.modeSwap"></option><option value="cover" data-i="duty.modeCover"></option></select>
+    </label>
+    <label for="dyPartner"><span data-i="duty.partner"></span><select id="dyPartner"></select></label>
+    <label for="dyTheir" id="dyTheirWrap"><span data-i="duty.their"></span><select id="dyTheir"></select></label>
+    <div class="note" id="dySum" hidden></div>
+    <div class="err" id="dyErr" hidden></div>
+    <button class="btn primary big" id="dyBtn" type="submit" data-i="duty.submit"></button>
+    <button class="btn" id="dyCancel" type="button" data-i="duty.cancelPick"></button>
+  </form>
+  <div class="card"><h3 style="font-size:18px" data-i="duty.history"></h3><div id="dyHist"></div></div>
+  <p class="muted small" style="margin:0" data-i="duty.note"></p>
 </main>
 
 <!-- ===== เปลี่ยน PIN / Change PIN ===== -->
@@ -366,6 +392,14 @@ const D = {
     'sys.title': 'Admin ระบบ', 'sys.code': 'รหัส Admin ระบบ', 'sys.week': 'สัปดาห์ที่มีวันที่', 'sys.report': 'รายงานประจำสัปดาห์',
     'sys.locked': 'บัญชีที่ถูกล็อก', 'sys.range': 'สัปดาห์ {0} – {1}', 'sys.csv': 'ดาวน์โหลด CSV', 'lvq.ask': 'วันนี้คุณมีใบ{0}อยู่ แต่มาทำงาน ต้องการยกเลิกใบลานี้หรือไม่? (ถ้าไม่ยกเลิก จะยังหักวันลา)', 'lvq.multi': 'วันนี้คุณมีใบ{0}อยู่ แต่มาทำงาน ใบลานี้ครอบหลายวัน กรุณาแจ้งผู้บริหารเพื่อปรับใบลา', 'lvq.cancel': 'ยกเลิกใบลา', 'lvq.keep': 'ไม่ยกเลิก', 'lvq.done': 'ยกเลิกใบลาแล้ว ไม่หักวันลาของวันนี้', 'lvq.hasLeave': 'มีใบ{0}', 'sys.pdf': 'ดาวน์โหลด PDF', 'sys.pdfBusy': 'กำลังสร้าง PDF…', 'sys.inout': 'แต่ละช่อง: บรรทัดบน = เวลาเข้า · บรรทัดล่าง = เวลาออก', 'sys.present': 'มา', 'sys.late': 'สาย',
     'sys.leave': 'ลา', 'sys.absent': 'ขาด', 'sys.outside': 'นอกรัศมี', 'sys.noLocked': 'ไม่มีบัญชีที่ถูกล็อก', 'sys.unlock': 'ปลดล็อค',
+    'duty.btn': 'แลกเวร / ให้เพื่อนทำแทน', 'duty.title': 'แลกเวร', 'duty.mine': 'เวรของฉันที่จะถึง', 'duty.pickHint': 'กดปุ่ม "แลก" ที่เวรที่ต้องการ', 'duty.none': 'ไม่มีเวรที่ระบุวันที่ตั้งแต่วันนี้',
+    'duty.pick': 'แลก', 'duty.formH': 'รายละเอียดการแลก', 'duty.picked': 'เวรของคุณ: {0}', 'duty.mode': 'แบบ', 'duty.modeSwap': 'แลกเวรกัน', 'duty.modeCover': 'ให้เพื่อนทำแทน (ไม่แลกคืน)',
+    'duty.partner': 'ครูที่จะรับเวรของคุณ', 'duty.choose': '— เลือกครู —', 'duty.chooseDuty': '— เลือกเวร —', 'duty.in': 'เข้าไม่เกิน {0}', 'duty.out': 'ออกหลัง {0}', 'duty.busy': ' (มีเวรวันนั้นแล้ว)', 'duty.noDuty': ' (ไม่มีเวรให้แลก)', 'duty.their': 'เวรของเพื่อนที่คุณจะทำแทน', 'duty.theirBusy': ' (คุณมีเวรวันนั้นแล้ว)',
+    'duty.submit': 'ยืนยันการแลกเวร', 'duty.cancelPick': 'ยกเลิก', 'duty.busyTxt': 'กำลังบันทึก…', 'duty.need': 'เลือกครูและเวรให้ครบ',
+    'duty.sumGive': '{0}: {1} ทำแทนคุณ', 'duty.sumTake': '{0}: คุณทำแทน {1}', 'duty.confirm': 'ยืนยันการแลกเวร?\n{0}\nมีผลทันที และ {1} จะเห็นแจ้งเตือนในแอป',
+    'duty.done': 'แลกเวรเรียบร้อยแล้ว มีผลทันที', 'duty.history': 'ประวัติการแลกเวรของฉัน', 'duty.noHist': 'ยังไม่มีประวัติ',
+    'duty.hSwap': 'แลกเวร', 'duty.hCover': 'ให้ทำแทน', 'duty.you': 'คุณ', 'duty.news': 'มีการแลกเวรกับคุณ', 'duty.dateBy': 'ทำรายการโดย {0} · {1}',
+    'duty.note': 'แลกได้เฉพาะเวรที่กำหนดเป็นวันที่ ตั้งแต่วันนี้เป็นต้นไป มีผลทันทีโดยไม่ต้องรออนุมัติ ระบบบันทึกประวัติไว้ในชีต "แลกเวร" ถ้าแลกผิด ให้แลกกลับ หรือแจ้งผู้ดูแลระบบ',
     'sys.resetPin': 'ตั้ง PIN ใหม่', 'sys.newPinPrompt': 'ตั้ง PIN ใหม่ให้ครูคนนี้ (ตัวเลข 4–6 หลัก) บัญชีจะถูกปลดล็อคด้วย'
   },
   en: {
@@ -443,6 +477,14 @@ const D = {
     'sys.title': 'System admin', 'sys.code': 'System admin code', 'sys.week': 'Week containing date', 'sys.report': 'Weekly report',
     'sys.locked': 'Locked accounts', 'sys.range': 'Week {0} – {1}', 'sys.csv': 'Download CSV', 'lvq.ask': 'You have a {0} request for today but came to work. Cancel the leave request? (If not, the day is still deducted.)', 'lvq.multi': 'You have a {0} request covering today but came to work. It spans several days, so please ask the administrator to adjust it.', 'lvq.cancel': 'Cancel leave', 'lvq.keep': 'Keep it', 'lvq.done': 'Leave cancelled. Today will not be deducted.', 'lvq.hasLeave': 'Has {0} request', 'sys.pdf': 'Download PDF', 'sys.pdfBusy': 'Creating PDF…', 'sys.inout': 'Each cell: top = check-in time · bottom = check-out time', 'sys.present': 'Present', 'sys.late': 'Late',
     'sys.leave': 'Leave', 'sys.absent': 'Absent', 'sys.outside': 'Outside', 'sys.noLocked': 'No locked accounts', 'sys.unlock': 'Unlock',
+    'duty.btn': 'Swap duty / ask a colleague to cover', 'duty.title': 'Swap duty', 'duty.mine': 'My upcoming duties', 'duty.pickHint': 'Tap "Swap" next to the duty you want to change', 'duty.none': 'No dated duties from today onwards',
+    'duty.pick': 'Swap', 'duty.formH': 'Swap details', 'duty.picked': 'Your duty: {0}', 'duty.mode': 'Type', 'duty.modeSwap': 'Swap duties', 'duty.modeCover': 'Cover (no swap back)',
+    'duty.partner': 'Colleague who takes your duty', 'duty.choose': '— Choose a teacher —', 'duty.chooseDuty': '— Choose a duty —', 'duty.in': 'in by {0}', 'duty.out': 'out after {0}', 'duty.busy': ' (already on duty that day)', 'duty.noDuty': ' (no duties to swap)', 'duty.their': 'Their duty that you will take', 'duty.theirBusy': ' (you already have a duty that day)',
+    'duty.submit': 'Confirm swap', 'duty.cancelPick': 'Cancel', 'duty.busyTxt': 'Saving…', 'duty.need': 'Choose a teacher and a duty',
+    'duty.sumGive': '{0}: {1} covers for you', 'duty.sumTake': '{0}: you cover for {1}', 'duty.confirm': 'Confirm this swap?\n{0}\nIt takes effect immediately and {1} will see a notice in the app.',
+    'duty.done': 'Duty swapped. It takes effect immediately.', 'duty.history': 'My swap history', 'duty.noHist': 'No history yet',
+    'duty.hSwap': 'Swap', 'duty.hCover': 'Cover', 'duty.you': 'you', 'duty.news': 'A duty was swapped with you', 'duty.dateBy': 'By {0} · {1}',
+    'duty.note': 'Only duties with a specific date, from today onwards, can be swapped. Swaps take effect immediately without approval and are recorded in the "แลกเวร" sheet. If you made a mistake, swap back or contact the system admin.',
     'sys.resetPin': 'Set new PIN', 'sys.newPinPrompt': 'Set a new PIN for this teacher (4–6 digits). The account will also be unlocked.'
   }
 };
@@ -456,7 +498,7 @@ let adminData = null;
 let leaves = [], sysData = null, sysMode = '', sysPin = '';
 
 function show(id) {
-  ['vLogin', 'vHome', 'vCam', 'vDone', 'vLeave', 'vPin', 'vSys', 'vAdmin'].forEach(v => { $('#' + v).hidden = v !== id; });
+  ['vLogin', 'vHome', 'vCam', 'vDone', 'vLeave', 'vDuty', 'vPin', 'vSys', 'vAdmin'].forEach(v => { $('#' + v).hidden = v !== id; });
   window.scrollTo(0, 0);
 }
 function err(el, msg) { el.textContent = msg || ''; el.hidden = !msg; }
@@ -479,6 +521,7 @@ function applyLang() {
   if (adminData) renderAdmin(adminData);
   else if (yearShown && yearData) renderYear(yearData);
   if (!$('#vLeave').hidden) renderLeaves();
+  if (!$('#vDuty').hidden && dutyData) renderDuty();
   if (!$('#vSys').hidden && sysData) { if (sysMode === 'week') renderSys(sysData); else renderLocked(sysData); }
 }
 document.addEventListener('click', e => {
@@ -523,7 +566,7 @@ $('#loginForm').addEventListener('submit', async e => {
   $('#loginBtn').disabled = false; $('#loginBtn').textContent = t('login.btn');
 });
 function applyLogin(j) {
-  S.teacher = j.teacher; S.settings = j.settings; S.today = j.today || []; S.duty = j.duty || null; S.leave = j.leave || null; S.off = j.off || null; S.defaultPin = !!j.defaultPin; if (j.balance) S.balance = j.balance;
+  S.teacher = j.teacher; S.settings = j.settings; S.today = j.today || []; S.duty = j.duty || null; S.leave = j.leave || null; S.off = j.off || null; S.swapNews = j.swapNews || []; S.defaultPin = !!j.defaultPin; if (j.balance) S.balance = j.balance;
   store.set('tc-cache', { teacher: j.teacher, settings: j.settings, school: j.settings.school });
   setSchool(j.settings.school);
   $('#tName').textContent = j.teacher.name;
@@ -572,6 +615,9 @@ function renderHome() {
   const ln = $('#leaveNote'); ln.hidden = !S.leave; ln.textContent = !S.leave ? '' : S.leave.kind === 'offsite' ? t('home.offsite', S.leave.place || '') : t('home.onLeave', leaveLabel(S.leave)) + (S.leave.reason ? ' · ' + S.leave.reason : '');
   const on = $('#offNote'); on.hidden = !S.off || !!S.leave; on.textContent = S.off ? t('home.off', offLabel(S.off)) : '';
   $('#pinNote').hidden = !S.defaultPin; $('#pinNote').textContent = t('pin.default');
+  const sn = $('#swapNote'), news = S.swapNews || [];
+  sn.hidden = !news.length;
+  sn.innerHTML = news.length ? `<div>${esc(t('duty.news'))}</div>` + news.map(x => `<div class="small" style="font-weight:400">${swapLines(x).map(esc).join('<br>')}</div>`).join('') : '';
   const st = S.settings || {};
   const d = S.duty, late = (d && d.late) || st.late, end = (d && d.end) || st.end;
   $('#rule').textContent = (d ? t('home.duty', d.name) : '') + t('home.late', late || '-') + (end ? t('home.end', end) : '') + t('home.radius', st.radius || '-');
@@ -769,6 +815,104 @@ function renderBal() {
   const h = balHtml(S.balance);
   [['#balHome', 'vHome'], ['#balLeave', 'vLeave']].forEach(([q]) => { const e = $(q); e.hidden = !h; e.innerHTML = h; });
 }
+
+/* ---------- แลกเวร ---------- */
+let dutyData = null, dutyPick = null;
+const isMe = c => S.teacher && String(c).replace(/^0+(?=\d)/, '').toUpperCase() === String(S.teacher.code).replace(/^0+(?=\d)/, '').toUpperCase();
+const dutyTime = d => [d.late ? t('duty.in', d.late) : '', d.end ? t('duty.out', d.end) : ''].filter(Boolean).join(' · ');
+const dutyTxt = d => `${d.name} ${fmtDay(d.date)}` + (dutyTime(d) ? ` (${dutyTime(d)})` : '');
+const who = p => isMe(p.code) ? t('duty.you') : p.name;
+function swapLines(x) {
+  const a = [`${x.give.name} ${fmtDay(x.give.date)}: ${who(x.by)} → ${who(x.to)}`];
+  if (x.take) a.push(`${x.take.name} ${fmtDay(x.take.date)}: ${who(x.to)} → ${who(x.by)}`);
+  return a;
+}
+function renderDuty() {
+  const d = dutyData || { mine: [], teachers: [], history: [] };
+  $('#dyMine').innerHTML = d.mine.length ? d.mine.map((m, i) => {
+    const sel = dutyPick && dutyPick.date === m.date && dutyPick.name === m.name;
+    return `<div class="lv${sel ? ' sel' : ''}"><div><b>${esc(m.name)}</b><div>${esc(fmtDay(m.date))}${dutyTime(m) ? ` · ${esc(dutyTime(m))}` : ''}</div></div><button class="btn" type="button" data-pick="${i}">${esc(t('duty.pick'))}</button></div>`;
+  }).join('') : `<p class="muted small" style="margin:0">${esc(t('duty.none'))}</p>`;
+  $('#dyHist').innerHTML = d.history.length ? d.history.map(x => `<div class="lv"><div><span class="pill ${x.mode === 'swap' ? 'p-ok' : 'p-leave'}">${esc(t(x.mode === 'swap' ? 'duty.hSwap' : 'duty.hCover'))}</span>${swapLines(x).map(l => `<div>${esc(l)}</div>`).join('')}<div class="muted small">${esc(t('duty.dateBy', who(x.by), x.at))}</div></div></div>`).join('')
+    : `<p class="muted small" style="margin:0">${esc(t('duty.noHist'))}</p>`;
+  $('#dutyForm').hidden = !dutyPick;
+  if (dutyPick) fillDutyForm();
+}
+function fillDutyForm() {
+  const d = dutyData, mode = $('#dyMode').value, keep = $('#dyPartner').value;
+  $('#dyPicked').textContent = t('duty.picked', dutyTxt(dutyPick));
+  const myDates = new Set(d.mine.map(m => m.date));
+  $('#dyPartner').innerHTML = `<option value="">${esc(t('duty.choose'))}</option>` + d.teachers.map(x => {
+    const busy = x.duties.some(y => y.date === dutyPick.date);
+    const none = mode === 'swap' && !x.duties.some(y => !myDates.has(y.date));
+    return `<option value="${esc(x.code)}"${busy || none ? ' disabled' : ''}>${esc(x.code + ' ' + x.name + (busy ? t('duty.busy') : none ? t('duty.noDuty') : ''))}</option>`;
+  }).join('');
+  if (keep && $('#dyPartner').querySelector(`option[value="${CSS.escape(keep)}"]:not([disabled])`)) $('#dyPartner').value = keep;
+  fillTheir();
+}
+function fillTheir() {
+  const mode = $('#dyMode').value, p = dutyData.teachers.find(x => x.code === $('#dyPartner').value);
+  $('#dyTheirWrap').hidden = mode !== 'swap';
+  const myDates = new Set(dutyData.mine.map(m => m.date)), keep = $('#dyTheir').value;
+  $('#dyTheir').innerHTML = `<option value="">${esc(t('duty.chooseDuty'))}</option>` + (p ? p.duties.map((y, i) => {
+    const busy = myDates.has(y.date);
+    return `<option value="${i}"${busy ? ' disabled' : ''}>${esc(dutyTxt(y) + (busy ? t('duty.theirBusy') : ''))}</option>`;
+  }).join('') : '');
+  if (keep && $('#dyTheir').querySelector(`option[value="${keep}"]:not([disabled])`)) $('#dyTheir').value = keep;
+  dutySummary();
+}
+function dutySummary() {
+  const s = dutySum(); $('#dySum').hidden = !s; $('#dySum').innerHTML = s ? s.map(esc).join('<br>') : '';
+}
+function dutySum() {
+  const p = dutyData && dutyData.teachers.find(x => x.code === $('#dyPartner').value);
+  if (!p || !dutyPick) return null;
+  const a = [t('duty.sumGive', dutyTxt(dutyPick), p.name)];
+  if ($('#dyMode').value === 'swap') {
+    const y = p.duties[$('#dyTheir').value];
+    if (!y) return null;
+    a.push(t('duty.sumTake', dutyTxt(y), p.name));
+  }
+  return a;
+}
+async function loadDuty() {
+  err($('#dyLoadErr'));
+  try { const j = await api('dutyList', S.creds, 60000); dutyData = j; }
+  catch (x) { err($('#dyLoadErr'), x.message); }
+  renderDuty();
+}
+function openDuty() {
+  dutyPick = null; $('#dyOk').hidden = true; err($('#dyErr')); $('#dyMode').value = 'swap';
+  show('vDuty'); renderDuty(); loadDuty();
+}
+$('#dutyBtn').addEventListener('click', openDuty);
+$('#dutyBack').addEventListener('click', () => show('vHome'));
+$('#dyMine').addEventListener('click', e => {
+  const b = e.target.closest('[data-pick]'); if (!b) return;
+  dutyPick = dutyData.mine[+b.dataset.pick]; $('#dyOk').hidden = true; err($('#dyErr'));
+  $('#dyPartner').value = ''; renderDuty();
+  $('#dutyForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+$('#dyMode').addEventListener('change', fillDutyForm);
+$('#dyPartner').addEventListener('change', () => { $('#dyTheir').value = ''; fillTheir(); });
+$('#dyTheir').addEventListener('change', dutySummary);
+$('#dyCancel').addEventListener('click', () => { dutyPick = null; renderDuty(); });
+$('#dutyForm').addEventListener('submit', async e => {
+  e.preventDefault(); err($('#dyErr'));
+  const sum = dutySum(), p = dutyData.teachers.find(x => x.code === $('#dyPartner').value);
+  if (!sum) { err($('#dyErr'), t('duty.need')); return; }
+  if (!confirm(t('duty.confirm', sum.join('\n'), p.name))) return;
+  const mode = $('#dyMode').value, y = mode === 'swap' ? p.duties[$('#dyTheir').value] : null;
+  const btn = $('#dyBtn'); btn.disabled = true; btn.textContent = t('duty.busyTxt');
+  try {
+    const j = await api('dutySwap', Object.assign({ mode, partner: p.code, myDate: dutyPick.date, myName: dutyPick.name,
+      theirDate: y ? y.date : '', theirName: y ? y.name : '' }, S.creds), 60000);
+    dutyData = j; dutyPick = null; renderDuty();
+    const o = $('#dyOk'); o.textContent = t('duty.done'); o.hidden = false; window.scrollTo(0, 0);
+    refreshHome();
+  } catch (x) { err($('#dyErr'), x.message); }
+  btn.disabled = false; btn.textContent = t('duty.submit');
+});
 
 /* ---------- ยื่นใบลา ---------- */
 const fmtDay = d => new Date(d + 'T00:00:00').toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' });
