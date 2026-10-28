@@ -566,7 +566,7 @@ $('#loginForm').addEventListener('submit', async e => {
   $('#loginBtn').disabled = false; $('#loginBtn').textContent = t('login.btn');
 });
 function applyLogin(j) {
-  S.teacher = j.teacher; S.settings = j.settings; S.today = j.today || []; S.duty = j.duty || null; S.leave = j.leave || null; S.off = j.off || null; S.swapNews = j.swapNews || []; S.defaultPin = !!j.defaultPin; if (j.balance) S.balance = j.balance;
+  S.teacher = j.teacher; S.settings = j.settings; S.today = j.today || []; S.day = plusDays(0); S.loadedAt = Date.now(); S.duty = j.duty || null; S.leave = j.leave || null; S.off = j.off || null; S.swapNews = j.swapNews || []; S.defaultPin = !!j.defaultPin; if (j.balance) S.balance = j.balance;
   store.set('tc-cache', { teacher: j.teacher, settings: j.settings, school: j.settings.school });
   setSchool(j.settings.school);
   $('#tName').textContent = j.teacher.name;
@@ -622,7 +622,19 @@ function renderHome() {
   const d = S.duty, late = (d && d.late) || st.late, end = (d && d.end) || st.end;
   $('#rule').textContent = (d ? t('home.duty', d.name) : '') + t('home.late', late || '-') + (end ? t('home.end', end) : '') + t('home.radius', st.radius || '-');
 }
-$('#punchBtn').addEventListener('click', openCamera);
+/* แอปเปิดค้างข้ามวัน: โหลดข้อมูลวันนี้ใหม่ก่อน ไม่ให้ปุ่มค้างเป็น "ลงเวลาออก" ของเมื่อวาน */
+function newDay() {
+  if (!S.teacher || !S.day || S.day === plusDays(0)) return false;
+  S.today = []; S.leave = null; S.off = null; S.duty = null; S.day = plusDays(0); renderHome();
+  return true;
+}
+$('#punchBtn').addEventListener('click', async () => {
+  const b = $('#punchBtn');
+  if (newDay() || Date.now() - (S.loadedAt || 0) > 10 * 60000) {
+    b.disabled = true; await refreshHome(); b.disabled = false;
+  }
+  openCamera();
+});
 
 /* ---------- GPS ---------- */
 function distM(a, b, c, d) {
@@ -1265,7 +1277,11 @@ function route() {
 /* ปลุกเซิร์ฟเวอร์ทันทีที่เปิดแอป เพื่อให้คำขอจริงตอบเร็วขึ้น */
 function warmUp() { if (/^https:\/\/script\.google\.com\//.test(API_URL)) fetch(API_URL + '?warm=1').catch(() => {}); }
 warmUp();
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') warmUp(); });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  warmUp();
+  if (S.creds && (newDay() || Date.now() - (S.loadedAt || 0) > 10 * 60000)) refreshHome();
+});
 window.addEventListener('hashchange', route);
 const c0 = store.get('tc-cache'); if (c0) setSchool(c0.school);
 applyLang();
