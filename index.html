@@ -587,7 +587,7 @@ function trStatus(s) {
     return L === 'en' ? m[1] + (rest ? ' ' + rest : '') : s.replace(new RegExp('\\s*' + TAG), '');
   }
   if (L === 'th') return s;
-  return s.replace('ออกก่อนเวลา', 'Left early').replace('ปกติ', 'Normal').replace('สาย', 'Late')
+  return s.replace('ปรับช่วงทดลองระบบ', 'adjusted (trial period)').replace('ออกก่อนเวลา', 'Left early').replace('ปกติ', 'Normal').replace('สาย', 'Late')
     .replace('ไม่มีเวลาเข้า', 'No check-in').replace('นอกรัศมี', 'Outside radius');
 }
 const leaveLabel = l => (L === 'en' ? l.en : l.th) + (l.time ? ' ' + l.time : '');
