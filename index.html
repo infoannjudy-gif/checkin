@@ -332,7 +332,7 @@ const D = {
     'home.hello': 'สวัสดีค่ะ/ครับ', 'home.logout': 'ออกจากระบบ', 'home.in': 'เวลาเข้า', 'home.out': 'เวลาออก',
     'home.none': 'ยังไม่ลงเวลา', 'home.btnIn': 'ลงเวลาเข้า', 'home.btnOut': 'ลงเวลาออก', 'home.btnOutAgain': 'ลงเวลาออกใหม่',
     'home.duty': 'วันนี้คุณมี{0} · ', 'home.late': 'เข้าสายหลัง {0} น.', 'home.end': ' · เลิกงาน {0} น.',
-    'home.radius': ' · ต้องอยู่ในรัศมี {0} ม. จากโรงเรียน',
+    'home.radius': ' · ต้องอยู่ในรัศมี {0} ม. จากโรงเรียน', 'home.noEnd': ' · ไม่มีสอนแล้วกลับได้เลย',
     'home.onLeave': 'วันนี้คุณลา: {0}', 'home.off': 'วันนี้เป็นวันหยุด ({0})',
     'cam.cancel': 'ยกเลิก', 'cam.openBtn': 'เปิดกล้องถ่ายรูป', 'cam.shutter': 'ถ่ายรูปและลงเวลา',
     'cam.hint': 'จัดหน้าให้อยู่ในวงรี แล้วกดปุ่มกลม', 'cam.hintFile': 'ถ่ายรูปหน้าตัวเองแล้วกดปุ่มกลมเพื่อส่ง',
@@ -420,7 +420,7 @@ const D = {
     'home.hello': 'Hello', 'home.logout': 'Sign out', 'home.in': 'Check-in', 'home.out': 'Check-out',
     'home.none': 'Not checked in', 'home.btnIn': 'Check in', 'home.btnOut': 'Check out', 'home.btnOutAgain': 'Check out again',
     'home.duty': 'Today: {0} · ', 'home.late': 'Late after {0}', 'home.end': ' · Finish {0}',
-    'home.radius': ' · Stay within {0} m of the school',
+    'home.radius': ' · Stay within {0} m of the school', 'home.noEnd': ' · You may leave when you have no more classes',
     'home.onLeave': 'You are on leave today: {0}', 'home.off': 'Today is a day off ({0})',
     'cam.cancel': 'Cancel', 'cam.openBtn': 'Open camera', 'cam.shutter': 'Take photo and check in',
     'cam.hint': 'Keep your face inside the oval, then tap the round button',
@@ -581,7 +581,7 @@ $('#loginForm').addEventListener('submit', async e => {
   $('#loginBtn').disabled = false; $('#loginBtn').textContent = t('login.btn');
 });
 function applyLogin(j) {
-  S.teacher = j.teacher; S.settings = j.settings; S.today = j.today || []; S.day = plusDays(0); S.loadedAt = Date.now(); S.duty = j.duty || null; S.leave = j.leave || null; S.off = j.off || null; S.swapNews = j.swapNews || []; S.defaultPin = !!j.defaultPin; if (j.balance) S.balance = j.balance;
+  S.teacher = j.teacher; S.settings = j.settings; S.today = j.today || []; S.day = plusDays(0); S.loadedAt = Date.now(); S.duty = j.duty || null; S.hours = j.hours || null; S.leave = j.leave || null; S.off = j.off || null; S.swapNews = j.swapNews || []; S.defaultPin = !!j.defaultPin; if (j.balance) S.balance = j.balance;
   store.set('tc-cache', { teacher: j.teacher, settings: j.settings, school: j.settings.school });
   setSchool(j.settings.school);
   $('#tName').textContent = j.teacher.name;
@@ -634,8 +634,8 @@ function renderHome() {
   sn.hidden = !news.length;
   sn.innerHTML = news.length ? `<div>${esc(t('duty.news'))}</div>` + news.map(x => `<div class="small" style="font-weight:400">${swapLines(x).map(esc).join('<br>')}</div>`).join('') : '';
   const st = S.settings || {};
-  const d = S.duty, late = (d && d.late) || st.late, end = (d && d.end) || st.end;
-  $('#rule').textContent = (d ? t('home.duty', d.name) : '') + t('home.late', late || '-') + (end ? t('home.end', end) : '') + t('home.radius', st.radius || '-');
+  const d = S.duty, h = S.hours, late = (d && d.late) || (h && h.late) || st.late, end = (d && d.end) || (h ? h.end : st.end);
+  $('#rule').textContent = (d ? t('home.duty', d.name) : '') + t('home.late', late || '-') + (end ? t('home.end', end) : t('home.noEnd')) + t('home.radius', st.radius || '-');
 }
 /* แอปเปิดค้างข้ามวัน: โหลดข้อมูลวันนี้ใหม่ก่อน ไม่ให้ปุ่มค้างเป็น "ลงเวลาออก" ของเมื่อวาน */
 function newDay() {
