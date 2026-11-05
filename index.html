@@ -401,7 +401,7 @@ const D = {
     'admin.full': 'วันที่เต็มแล้ว: {0}', 'admin.noPending': 'ไม่มีรายการรออนุมัติ',
     'sys.title': 'Admin ระบบ', 'sys.code': 'รหัส Admin ระบบ', 'sys.week': 'สัปดาห์ที่มีวันที่', 'sys.report': 'รายงานประจำสัปดาห์',
     'sys.locked': 'บัญชีที่ถูกล็อก', 'sys.range': 'สัปดาห์ {0} – {1}', 'sys.csv': 'ดาวน์โหลด CSV', 'lvq.ask': 'วันนี้คุณมีใบ{0}อยู่ แต่มาทำงาน ต้องการยกเลิกใบลานี้หรือไม่? (ถ้าไม่ยกเลิก จะยังหักวันลา)', 'lvq.multi': 'วันนี้คุณมีใบ{0}อยู่ แต่มาทำงาน ใบลานี้ครอบหลายวัน กรุณาแจ้งผู้บริหารเพื่อปรับใบลา', 'lvq.cancel': 'ยกเลิกใบลา', 'lvq.keep': 'ไม่ยกเลิก', 'lvq.done': 'ยกเลิกใบลาแล้ว ไม่หักวันลาของวันนี้', 'lvq.hasLeave': 'มีใบ{0}', 'sys.pdf': 'ดาวน์โหลด PDF', 'sys.pdfBusy': 'กำลังสร้าง PDF…', 'sys.inout': 'แต่ละช่อง: บรรทัดบน = เวลาเข้า · บรรทัดล่าง = เวลาออก', 'sys.present': 'มา', 'sys.late': 'สาย',
-    'sys.resigned': 'ลาออก', 'sys.resignedOn': 'ลาออก · ทำงานวันสุดท้าย {0}', 'sys.leave': 'ลา', 'sys.absent': 'ขาด', 'sys.outside': 'นอกรัศมี', 'sys.noLocked': 'ไม่มีบัญชีที่ถูกล็อก', 'sys.unlock': 'ปลดล็อค',
+    'sys.resigned': 'ลาออก', 'sys.noOut': 'ไม่ลงเวลาออก', 'sys.resignedOn': 'ลาออก · ทำงานวันสุดท้าย {0}', 'sys.leave': 'ลา', 'sys.absent': 'ขาด', 'sys.outside': 'นอกรัศมี', 'sys.noLocked': 'ไม่มีบัญชีที่ถูกล็อก', 'sys.unlock': 'ปลดล็อค',
     'duty.btn': 'แลกเวร / ให้เพื่อนทำแทน', 'duty.title': 'แลกเวร', 'duty.mine': 'เวรของฉันที่จะถึง', 'duty.pickHint': 'กดปุ่ม "แลก" ที่เวรที่ต้องการ', 'duty.none': 'ไม่มีเวรในช่วง 8 สัปดาห์ข้างหน้า', 'duty.weekly': 'เวรประจำ',
     'duty.pick': 'แลก', 'duty.formH': 'รายละเอียดการแลก', 'duty.picked': 'เวรของคุณ: {0}', 'duty.mode': 'แบบ', 'duty.modeSwap': 'แลกเวรกัน', 'duty.modeCover': 'ให้เพื่อนทำแทน (ไม่แลกคืน)',
     'duty.partner': 'ครูที่จะรับเวรของคุณ', 'duty.choose': '— เลือกครู —', 'duty.chooseDuty': '— เลือกเวร —', 'duty.in': 'เข้าไม่เกิน {0}', 'duty.out': 'ออกหลัง {0}', 'duty.busy': ' (มีเวรวันนั้นแล้ว)', 'duty.noDuty': ' (ไม่มีเวรให้แลก)', 'duty.their': 'เวรของเพื่อนที่คุณจะทำแทน', 'duty.theirBusy': ' (คุณมีเวรวันนั้นแล้ว)',
@@ -490,7 +490,7 @@ const D = {
     'admin.full': 'Full days: {0}', 'admin.noPending': 'Nothing is waiting for approval',
     'sys.title': 'System admin', 'sys.code': 'System admin code', 'sys.week': 'Week containing date', 'sys.report': 'Weekly report',
     'sys.locked': 'Locked accounts', 'sys.range': 'Week {0} – {1}', 'sys.csv': 'Download CSV', 'lvq.ask': 'You have a {0} request for today but came to work. Cancel the leave request? (If not, the day is still deducted.)', 'lvq.multi': 'You have a {0} request covering today but came to work. It spans several days, so please ask the administrator to adjust it.', 'lvq.cancel': 'Cancel leave', 'lvq.keep': 'Keep it', 'lvq.done': 'Leave cancelled. Today will not be deducted.', 'lvq.hasLeave': 'Has {0} request', 'sys.pdf': 'Download PDF', 'sys.pdfBusy': 'Creating PDF…', 'sys.inout': 'Each cell: top = check-in time · bottom = check-out time', 'sys.present': 'Present', 'sys.late': 'Late',
-    'sys.resigned': 'Resigned', 'sys.resignedOn': 'Resigned · last day {0}', 'sys.leave': 'Leave', 'sys.absent': 'Absent', 'sys.outside': 'Outside', 'sys.noLocked': 'No locked accounts', 'sys.unlock': 'Unlock',
+    'sys.resigned': 'Resigned', 'sys.noOut': 'No check-out', 'sys.resignedOn': 'Resigned · last day {0}', 'sys.leave': 'Leave', 'sys.absent': 'Absent', 'sys.outside': 'Outside', 'sys.noLocked': 'No locked accounts', 'sys.unlock': 'Unlock',
     'duty.btn': 'Swap duty / ask a colleague to cover', 'duty.title': 'Swap duty', 'duty.mine': 'My upcoming duties', 'duty.pickHint': 'Tap "Swap" next to the duty you want to change', 'duty.none': 'No duties in the next 8 weeks', 'duty.weekly': 'Weekly',
     'duty.pick': 'Swap', 'duty.formH': 'Swap details', 'duty.picked': 'Your duty: {0}', 'duty.mode': 'Type', 'duty.modeSwap': 'Swap duties', 'duty.modeCover': 'Cover (no swap back)',
     'duty.partner': 'Colleague who takes your duty', 'duty.choose': '— Choose a teacher —', 'duty.chooseDuty': '— Choose a duty —', 'duty.in': 'in by {0}', 'duty.out': 'out after {0}', 'duty.busy': ' (already on duty that day)', 'duty.noDuty': ' (no duties to swap)', 'duty.their': 'Their duty that you will take', 'duty.theirBusy': ' (you already have a duty that day)',
@@ -602,7 +602,7 @@ function trStatus(s) {
     return L === 'en' ? m[1] + (rest ? ' ' + rest : '') : s.replace(new RegExp('\\s*' + TAG), '');
   }
   if (L === 'th') return s;
-  return s.replace('ปรับช่วงทดลองระบบ', 'adjusted (trial period)').replace('ออกก่อนเวลา', 'Left early').replace('ปกติ', 'Normal').replace('สาย', 'Late')
+  return s.replace('ไม่ลงเวลาออก (นับเป็นออกก่อนเวลา / No check-out)', 'No check-out (counted as leaving early)').replace('ปรับช่วงทดลองระบบ', 'adjusted (trial period)').replace('ออกก่อนเวลา', 'Left early').replace('ปกติ', 'Normal').replace('สาย', 'Late')
     .replace('ไม่มีเวลาเข้า', 'No check-in').replace('นอกรัศมี', 'Outside radius');
 }
 const leaveLabel = l => (L === 'en' ? l.en : l.th) + (l.time ? ' ' + l.time : '');
@@ -1202,7 +1202,7 @@ $('#sysForm').addEventListener('submit', e => { e.preventDefault(); sysPin = $('
 $('#sysLockedBtn').addEventListener('click', () => { sysPin = $('#sysCode').value.trim(); if (sysPin) runSysLocked(); });
 function cellView(c) {
   const lvV = c => c.lv ? `<br><span class="small" style="color:var(--leave)">${esc((c.lv.full ? t('lvq.hasLeave', t('kind.' + c.lv.kind)) : t('kind.' + c.lv.kind) + ' ' + c.lv.time))}</span>` : '';
-  const outV = c => c.out ? `<span${c.early ? ' style="color:var(--late);font-weight:600"' : ''}>${esc(c.out)}</span>` : '<span class="muted">–</span>';
+  const outV = c => c.out ? `<span${c.early ? ' style="color:var(--late);font-weight:600"' : ''}>${esc(c.out)}</span>` : c.noOut ? `<span style="color:var(--late);font-weight:600;font-family:var(--body);font-size:13px">${esc(t('sys.noOut'))}</span>` : '<span class="muted">–</span>';
   if (c.s === 'present') return `<span class="mono">${esc(c.time)}<br>${outV(c)}</span>${lvV(c)}`;
   if (c.s === 'late') return `<span class="mono"><span style="color:var(--late);font-weight:600">${esc(c.time)}</span><br>${outV(c)}</span>${lvV(c)}`;
   if (c.s === 'offsite') return `<span class="pill p-ok">${esc(t('sys.offsite'))}</span>`;
@@ -1213,7 +1213,7 @@ function cellView(c) {
   return '<span class="muted">·</span>';
 }
 function cellText(c) {
-  if (c.s === 'present' || c.s === 'late') return c.time + (c.s === 'late' ? ' (' + t('sys.late') + ')' : '') + ' – ' + (c.out || '-') +
+  if (c.s === 'present' || c.s === 'late') return c.time + (c.s === 'late' ? ' (' + t('sys.late') + ')' : '') + ' – ' + (c.out || (c.noOut ? t('sys.noOut') : '-')) +
     (c.lv ? ' [' + (c.lv.full ? t('lvq.hasLeave', t('kind.' + c.lv.kind)) : t('kind.' + c.lv.kind) + ' ' + c.lv.time) + ']' : '');
   if (c.s === 'offsite') return t('kind.offsite');
   if (c.s === 'leave') return t('kind.' + c.kind);
