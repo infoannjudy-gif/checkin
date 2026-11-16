@@ -204,14 +204,17 @@ tr:last-child td{border-bottom:0}
         <option value="personal" data-i="kind.personal"></option>
         <option value="maternity" data-i="kind.maternity"></option>
         <option value="ordination" data-i="kind.ordination"></option>
+        <option value="vacation" data-i="kind.vacation"></option>
         <option value="offsite" data-i="kind.offsite"></option>
       </select>
     </label>
     <p class="note" id="lvOffNote" hidden data-i="leave.offsiteNote"></p>
+    <p class="note" id="lvVacNote" hidden></p>
     <label for="lvPlace" id="lvPlaceWrap" hidden><span data-i="leave.place"></span><input type="text" id="lvPlace" maxlength="200"></label>
     <label for="lvFrom"><span data-i="leave.from"></span><input type="date" id="lvFrom" required></label>
-    <label for="lvTo"><span data-i="leave.to"></span><input type="date" id="lvTo" required></label>
-    <label class="chk" for="lvAll"><input type="checkbox" id="lvAll" checked><span data-i="leave.allDay"></span></label>
+    <label for="lvTo" id="lvToWrap"><span data-i="leave.to"></span><input type="date" id="lvTo" required></label>
+    <p class="note soft" id="lvVacEnd" hidden style="margin:0"></p>
+    <label class="chk" for="lvAll" id="lvAllWrap"><input type="checkbox" id="lvAll" checked><span data-i="leave.allDay"></span></label>
     <div class="row" id="lvTimes" hidden>
       <label for="lvFt" style="flex:1 1 130px"><span data-i="leave.ft"></span><input type="time" id="lvFt" value="08:00"></label>
       <label for="lvTt" style="flex:1 1 130px"><span data-i="leave.tt"></span><input type="time" id="lvTt" value="17:00"></label>
@@ -309,7 +312,7 @@ tr:last-child td{border-bottom:0}
 /* ============================================================
    ตั้งค่า: วาง Web app URL ที่ได้จาก Apps Script ระหว่างเครื่องหมายคำพูด
    ============================================================ */
-const API_URL = 'https://script.google.com/macros/s/AKfycbxgHoxiAdFdmc4FaOtTHidj2oqgRmgG4ez45HUHy3mQTqIxZAB0uhCr_whXzpBbmQaL/exec';
+const API_URL = 'PASTE_APPS_SCRIPT_URL_HERE';
 
 (function () {
 'use strict';
@@ -362,7 +365,7 @@ const D = {
     'year.late': 'สาย/กลับก่อน (ครั้ง)', 'year.lateDays': 'ตัดเป็นลากิจ (วัน)', 'year.absent': 'ขาดงาน (วัน)', 'year.used': 'ลากิจรวม', 'year.left': 'ลากิจคงเหลือ',
     'year.sickLeft': 'ป่วยคงเหลือ', 'year.mat': 'ลาคลอด', 'year.other': 'ลาบวช', 'year.flag': 'แจ้งเตือน', 'year.ok': 'ปกติ',
     'range.month': 'เลือกเดือน', 'range.from': 'ตั้งแต่วันที่', 'range.to': 'ถึงวันที่', 'range.btn': 'รายงานวันลาตามช่วงวันที่',
-    'range.title': 'รายงานวันลา {0} – {1}', 'range.sub': 'ยอดสะสมนับตั้งแต่ {0} ถึง {1} (ปีลาเริ่มใหม่ทุก 1 พ.ค.) · สิทธิ์: ลากิจ {2} วัน ลาป่วย {3} วัน',
+    'range.title': 'รายงานวันลา {0} – {1}', 'range.sub': 'ยอดสะสมนับตั้งแต่ {0} ถึง {1} (ปีลาเริ่มใหม่ทุก 1 พ.ค.) · สิทธิ์: ลากิจ {2} วัน ลาป่วย {3} วัน ลาพักร้อน {4} วัน',
     'range.inRange': 'ในช่วงที่เลือก', 'range.ytd': 'สะสมตั้งแต่ พ.ค.', 'range.personal': 'ลากิจ', 'range.sick': 'ลาป่วย', 'range.total': 'รวม',
     'range.print': 'พิมพ์ / บันทึก PDF', 'range.cross': 'ช่วงวันที่คร่อมปีลา ยอดสะสมนับเฉพาะปีลาของวันที่สิ้นสุด',
     'year.over': 'เกินสิทธิ์', 'year.fullp': 'ครบสิทธิ์', 'year.unpaid': 'คลอดเกินวันรับเงินเดือน', 'year.csv': 'ดาวน์โหลด CSV',
@@ -383,7 +386,8 @@ const D = {
     'err.generic': 'เกิดข้อผิดพลาด', 'lang.btn': 'EN',
     'home.leave': 'ยื่นใบลา', 'leave.title': 'ยื่นใบลา', 'leave.back': 'กลับหน้าหลัก', 'leave.kind': 'ประเภทการลา',
     'kind.offsite': 'ปฏิบัติงานนอกสถานที่', 'sys.offsite': 'นอกสถานที่', 'leave.place': 'สถานที่ปฏิบัติงาน', 'leave.placeShort': 'สถานที่', 'leave.detail': 'รายละเอียดงาน', 'leave.submitOff': 'ส่งขออนุมัติ', 'leave.offsiteNote': 'ต้องให้ผู้บริหารอนุมัติก่อนจึงจะมีผล ไม่นับเป็นวันลา', 'leave.offsiteSent': 'ส่งคำขอปฏิบัติงานนอกสถานที่แล้ว รอผู้บริหารอนุมัติ', 'home.offsite': 'วันนี้ปฏิบัติงานนอกสถานที่: {0}',
-    'kind.sick': 'ลาป่วย', 'kind.personal': 'ลากิจ', 'kind.maternity': 'ลาคลอด', 'kind.ordination': 'ลาบวช', 'kind.other': 'ลาอื่นๆ',
+    'kind.sick': 'ลาป่วย', 'kind.personal': 'ลากิจ', 'kind.maternity': 'ลาคลอด', 'kind.ordination': 'ลาบวช', 'kind.vacation': 'ลาพักร้อน', 'kind.other': 'ลาอื่นๆ',
+    'leave.vacNote': 'ลาพักร้อนติดกันครั้งเดียวต่อปีลา {3} วัน (3 สัปดาห์ จันทร์–ศุกร์) นับวันหยุดราชการที่อยู่ในช่วงลาด้วย ยกเว้นวันหยุดสงกรานต์ · ลาได้เฉพาะเดือน{0} · ต้องยื่นล่วงหน้าอย่างน้อย {1} วัน (เริ่มลาได้ตั้งแต่ {2}) · เลือกแค่วันเริ่มลา ระบบคำนวณวันสิ้นสุดให้', 'leave.vacEnd': 'ลาพักร้อน {0} – {1} ({2} วัน)', 'leave.vacBadStart': 'วันเริ่มลาต้องเป็นวันจันทร์–ศุกร์ ที่ไม่ใช่วันหยุดสงกรานต์', 'leave.vacSent': 'ส่งใบลาพักร้อนแล้ว: {0} – {1}', 'bal.vacation': 'ลาพักร้อน', 'year.vac': 'ลาพักร้อน', 'year.vacLeft': 'พักร้อนคงเหลือ', 'range.vacation': 'ลาพักร้อน',
     'leave.from': 'ตั้งแต่วันที่', 'leave.to': 'ถึงวันที่', 'leave.allDay': 'ลาทั้งวัน', 'leave.ft': 'เวลาเริ่มลา', 'leave.tt': 'เวลาสิ้นสุดการลา',
     'leave.reason': 'เหตุผลเพิ่มเติม (ไม่บังคับ)', 'leave.submit': 'ส่งใบลา', 'leave.busy': 'กำลังส่ง…',
     'leave.sent': 'ส่งใบลาเรียบร้อยแล้ว ระบบจะบันทึกว่าลาตามวันที่ที่แจ้ง', 'leave.mine': 'ใบลาของฉัน', 'leave.none': 'ยังไม่มีใบลา',
@@ -451,7 +455,7 @@ const D = {
     'year.late': 'Late/early (times)', 'year.lateDays': 'Counted as personal (days)', 'year.absent': 'Absent (days)', 'year.used': 'Personal total', 'year.left': 'Personal left',
     'year.sickLeft': 'Sick left', 'year.mat': 'Maternity', 'year.other': 'Ordination', 'year.flag': 'Alert', 'year.ok': 'OK',
     'range.month': 'Month', 'range.from': 'From', 'range.to': 'To', 'range.btn': 'Leave report by date range',
-    'range.title': 'Leave report {0} – {1}', 'range.sub': 'Year-to-date from {0} to {1} (leave year restarts every 1 May) · Entitlement: personal {2} days, sick {3} days',
+    'range.title': 'Leave report {0} – {1}', 'range.sub': 'Year-to-date from {0} to {1} (leave year restarts every 1 May) · Entitlement: personal {2} days, sick {3} days, vacation {4} days',
     'range.inRange': 'Selected period', 'range.ytd': 'Since May', 'range.personal': 'Personal', 'range.sick': 'Sick', 'range.total': 'Total',
     'range.print': 'Print / save PDF', 'range.cross': 'The period crosses leave years; year-to-date counts only the leave year of the end date.',
     'year.over': 'Over limit', 'year.fullp': 'Used up', 'year.unpaid': 'Maternity beyond paid days', 'year.csv': 'Download CSV',
@@ -472,7 +476,8 @@ const D = {
     'err.generic': 'Something went wrong', 'lang.btn': 'ไทย',
     'home.leave': 'Request leave', 'leave.title': 'Request leave', 'leave.back': 'Back to home', 'leave.kind': 'Type of leave',
     'kind.offsite': 'Off-site work', 'sys.offsite': 'Off-site', 'leave.place': 'Work location', 'leave.placeShort': 'Location', 'leave.detail': 'Work details', 'leave.submitOff': 'Request approval', 'leave.offsiteNote': 'Needs administrator approval before it applies. Not counted as leave.', 'leave.offsiteSent': 'Off-site work request sent. Waiting for administrator approval.', 'home.offsite': 'Working off-site today: {0}',
-    'kind.sick': 'Sick Leave', 'kind.personal': 'Personal Leave', 'kind.maternity': 'Maternity Leave', 'kind.ordination': 'Ordination Leave', 'kind.other': 'Other',
+    'kind.sick': 'Sick Leave', 'kind.personal': 'Personal Leave', 'kind.maternity': 'Maternity Leave', 'kind.ordination': 'Ordination Leave', 'kind.vacation': 'Vacation Leave', 'kind.other': 'Other',
+    'leave.vacNote': 'One continuous vacation per leave year: {3} days (3 weeks, Mon–Fri). Public holidays inside the period count as vacation days, except Songkran holidays · Only in {0} · Request at least {1} days ahead (earliest start {2}) · Pick the start date only; the end date is calculated for you', 'leave.vacEnd': 'Vacation {0} – {1} ({2} days)', 'leave.vacBadStart': 'The start date must be a weekday that is not a Songkran holiday', 'leave.vacSent': 'Vacation leave submitted: {0} – {1}', 'bal.vacation': 'Vacation leave', 'year.vac': 'Vacation', 'year.vacLeft': 'Vacation left', 'range.vacation': 'Vacation',
     'leave.from': 'From date', 'leave.to': 'To date', 'leave.allDay': 'Full day(s)', 'leave.ft': 'Start time', 'leave.tt': 'End time',
     'leave.reason': 'Additional details (optional)', 'leave.submit': 'Submit leave request', 'leave.busy': 'Sending…',
     'leave.sent': 'Leave request submitted. You will be recorded as on leave for these dates.', 'leave.mine': 'My leave requests', 'leave.none': 'No leave requests yet',
@@ -593,7 +598,7 @@ $('#logoutBtn').addEventListener('click', () => {
 });
 
 /* ---------- สถานะ (เก็บในชีตเป็นภาษาไทย แปลตอนแสดงผล) ---------- */
-const TAG = '\\((Sick Leave|Personal Leave|Maternity Leave|Ordination Leave|Other Leave|Absent)\\)';
+const TAG = '\\((Sick Leave|Personal Leave|Maternity Leave|Ordination Leave|Vacation Leave|Other Leave|Absent)\\)';
 function trStatus(s) {
   s = String(s || '');
   const m = s.match(new RegExp(TAG));
@@ -829,6 +834,7 @@ function balHtml(b) {
   h += line(t('bal.sick'), m.sickLeft, q.sick);
   h += line(t('bal.personal'), m.personalLeft, q.personal);
   if (m.maternity > 0) h += line(t('bal.maternity'), m.maternityLeft, q.maternity, m.unpaid > 0 ? t('bal.unpaid', nf(m.unpaid)) : t('bal.paid', nf(m.paidLeft)));
+  if (q.vacation != null && m.vacationLeft != null) h += line(t('bal.vacation'), m.vacationLeft, q.vacation);
   h += `<div class="muted small" style="margin-top:6px">${esc(t('bal.late', m.lateEarly, m.toNext))}</div>`;
   if (m.absent > 0) h += `<div class="muted small">${esc(t('bal.absent', m.absent))}</div>`;
   const warn = [];
@@ -971,11 +977,47 @@ const refreshHome = () => api('login', S.creds, 60000).then(applyLogin).catch(()
 function leaveMsg(text, kind) { const o = $('#lvOk'); o.className = kind; o.textContent = text; o.hidden = false; }
 $('#leaveBtn').addEventListener('click', openLeave);
 $('#leaveBack').addEventListener('click', () => show('vHome'));
-$('#lvFrom').addEventListener('change', () => { if ($('#lvTo').value < $('#lvFrom').value) $('#lvTo').value = $('#lvFrom').value; });
+$('#lvFrom').addEventListener('change', () => { if ($('#lvTo').value < $('#lvFrom').value) $('#lvTo').value = $('#lvFrom').value; if ($('#lvKind').value === 'vacation') showVacEnd(); });
 $('#lvAll').addEventListener('change', () => { $('#lvTimes').hidden = $('#lvAll').checked; });
+function vacInfo() {
+  const v = (S.settings && S.settings.vacation) || { quota: 15, notice: 60, months: [10, 3, 4] };
+  const mn = v.months.map(m => new Date(2000, m - 1, 1).toLocaleDateString(locale(), { month: 'long' }));
+  const skip = new Set(v.skip || []);
+  const isDay = d => { const w = new Date(d + 'T00:00:00').getDay(); return !skip.has(d) && w !== 0 && (w !== 6 || v.satWork); };
+  let first = plusDays(v.notice);
+  for (let i = 0; i < 400 && (v.months.indexOf(+first.slice(5, 7)) < 0 || !isDay(first)); i++) first = plusDays(v.notice + i + 1);
+  return Object.assign({ earliest: plusDays(v.notice), first, isDay, names: L === 'th' ? mn.join(' ') : mn.join(', ') }, v);
+}
+/* ลาพักร้อนติดกัน: นับจันทร์–ศุกร์ รวมวันหยุดราชการ ยกเว้นวันหยุดสงกรานต์ */
+function vacEnd(from) {
+  const v = vacInfo(); if (!from || !v.isDay(from)) return '';
+  let d = new Date(from + 'T00:00:00'), c = 0;
+  for (let i = 0; i < 120; i++) {
+    const k = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    if (v.isDay(k) && ++c === v.quota) return k;
+    d.setDate(d.getDate() + 1);
+  }
+  return '';
+}
+function showVacEnd() {
+  const e = $('#lvVacEnd'), v = vacInfo(), f = $('#lvFrom').value, end = vacEnd(f);
+  e.textContent = end ? t('leave.vacEnd', fmtDay(f), fmtDay(end), v.quota) : t('leave.vacBadStart');
+}
 function syncKind() {
-  const off = $('#lvKind').value === 'offsite';
+  const off = $('#lvKind').value === 'offsite', vac = $('#lvKind').value === 'vacation';
   $('#lvOffNote').hidden = !off; $('#lvPlaceWrap').hidden = !off;
+  const vn = $('#lvVacNote'); vn.hidden = !vac; $('#lvAllWrap').hidden = vac;
+  if (vac) {
+    const v = vacInfo();
+    vn.textContent = t('leave.vacNote', v.names, v.notice, fmtDay(v.earliest), v.quota);
+    $('#lvAll').checked = true; $('#lvTimes').hidden = true;
+    $('#lvToWrap').hidden = true; $('#lvVacEnd').hidden = false;
+    ['#lvFrom', '#lvTo'].forEach(q => { $(q).min = v.earliest; $(q).max = plusDays(366); if ($(q).value < v.earliest || v.months.indexOf(+$(q).value.slice(5, 7)) < 0) $(q).value = v.first; });
+    showVacEnd();
+  } else {
+    ['#lvFrom', '#lvTo'].forEach(q => { $(q).min = plusDays(-30); });
+    $('#lvToWrap').hidden = false; $('#lvVacEnd').hidden = true;
+  }
   $('#lvReasonLbl').textContent = t(off ? 'leave.detail' : 'leave.reason');
   $('#lvBtn').textContent = t(off ? 'leave.submitOff' : 'leave.submit');
 }
@@ -987,7 +1029,7 @@ $('#leaveForm').addEventListener('submit', async e => {
     const all = $('#lvAll').checked;
     const j = await api('leaveSubmit', {
       code: S.creds.code, pin: S.creds.pin, kind: $('#lvKind').value,
-      from: $('#lvFrom').value, to: $('#lvTo').value, allDay: all,
+      from: $('#lvFrom').value, to: $('#lvKind').value === 'vacation' ? (vacEnd($('#lvFrom').value) || $('#lvFrom').value) : $('#lvTo').value, allDay: all,
       ft: all ? '' : $('#lvFt').value, tt: all ? '' : $('#lvTt').value, reason: $('#lvReason').value, place: $('#lvPlace').value
     }, 60000);
     leaves = j.leaves || leaves; renderLeaves();
@@ -995,6 +1037,7 @@ $('#leaveForm').addEventListener('submit', async e => {
     $('#lvReason').value = ''; $('#lvPlace').value = '';
     if (j.offsite) leaveMsg(t('leave.offsiteSent'), 'note');
     else if (j.pending) leaveMsg(t('leave.pending', (j.fullDays || []).map(fmtDay).join(', '), j.limit), 'note');
+    else if (j.vacation) leaveMsg(t('leave.vacSent', fmtDay(j.vacation.from), fmtDay(j.vacation.to)), 'ok');
     else leaveMsg(t('leave.sent'), 'ok');
     refreshHome();
   } catch (x) { err($('#lvErr'), x.message); }
@@ -1073,7 +1116,7 @@ function yearCols(j) {
     [t('year.sick'), o => o.sick], [t('year.sickLeft'), o => o.sickLeft],
     [t('year.personal'), o => o.personal], [t('year.late'), o => o.lateEarly], [t('year.lateDays'), o => o.lateDays], [t('year.absent'), o => o.absent],
     [t('year.used'), o => o.personalUsed], [t('year.left'), o => o.personalLeft],
-    [t('year.mat'), o => o.maternity], [t('year.other'), o => Math.round((o.ordination + o.other) * 10) / 10]
+    [t('year.mat'), o => o.maternity], [t('year.vac'), o => o.vacation || 0], [t('year.vacLeft'), o => o.vacationLeft != null ? o.vacationLeft : ''], [t('year.other'), o => Math.round((o.ordination + o.other) * 10) / 10]
   ];
 }
 function renderYear(j) {
@@ -1087,7 +1130,7 @@ function renderYear(j) {
   <div class="row" style="margin-bottom:12px"><button class="btn" id="yearCsv" type="button">${esc(t('year.csv'))}</button></div>
   <div class="tbl"><table>
     <thead><tr>${cols.map(c => `<th>${esc(c[0])}</th>`).join('')}<th>${esc(t('year.flag'))}</th></tr></thead>
-    <tbody>${j.rows.length ? j.rows.map(o => `<tr>${cols.map((c, i) => `<td class="${i > 1 ? 'mono' : ''}">${esc(c[1](o))}</td>`).join('')}<td>${yearFlag(o)}</td></tr>`).join('') : `<tr><td colspan="13" class="muted">${esc(t('admin.empty'))}</td></tr>`}</tbody>
+    <tbody>${j.rows.length ? j.rows.map(o => `<tr>${cols.map((c, i) => `<td class="${i > 1 ? 'mono' : ''}">${esc(c[1](o))}</td>`).join('')}<td>${yearFlag(o)}</td></tr>`).join('') : `<tr><td colspan="15" class="muted">${esc(t('admin.empty'))}</td></tr>`}</tbody>
   </table></div>`;
   $('#yearCsv').onclick = () => {
     const qq = v => '"' + String(v).replace(/"/g, '""') + '"';
@@ -1118,23 +1161,23 @@ $('#rgMonth').addEventListener('change', () => { if ($('#rgMonth').value) setMon
 ['#rgFrom', '#rgTo'].forEach(q => $(q).addEventListener('change', () => { $('#rgMonth').value = ''; }));
 function renderRange(j) {
   const n = v => (Math.round(v * 10) / 10).toString();
-  const sum = f => j.rows.reduce((a, o) => a + o[f], 0);
+  const sum = f => j.rows.reduce((a, o) => a + (o[f] || 0), 0);
   const cross = j.from < j.year.from;
   const cols = [[t('admin.code'), o => o.code], [t('admin.name'), o => o.name],
-    [t('range.inRange') + ' · ' + t('range.personal'), o => n(o.personal)], [t('range.inRange') + ' · ' + t('range.sick'), o => n(o.sick)],
-    [t('range.ytd') + ' · ' + t('range.personal'), o => n(o.personalYtd)], [t('range.ytd') + ' · ' + t('range.sick'), o => n(o.sickYtd)]];
+    [t('range.inRange') + ' · ' + t('range.personal'), o => n(o.personal)], [t('range.inRange') + ' · ' + t('range.sick'), o => n(o.sick)], [t('range.inRange') + ' · ' + t('range.vacation'), o => n(o.vacation || 0)],
+    [t('range.ytd') + ' · ' + t('range.personal'), o => n(o.personalYtd)], [t('range.ytd') + ' · ' + t('range.sick'), o => n(o.sickYtd)], [t('range.ytd') + ' · ' + t('range.vacation'), o => n(o.vacationYtd || 0)]];
   const warn = (v, q) => v > q ? ' style="color:var(--bad);font-weight:700"' : '';
   $('#adOut').innerHTML = `
   <h3 style="font-size:18px;margin-bottom:4px">${esc(t('range.title', fmtDay(j.from), fmtDay(j.to)))}</h3>
-  <p class="muted small" style="margin:0 0 10px">${esc(t('range.sub', fmtDay(j.year.from), fmtDay(j.to), j.quota.personal, j.quota.sick))}</p>
+  <p class="muted small" style="margin:0 0 10px">${esc(t('range.sub', fmtDay(j.year.from), fmtDay(j.to), j.quota.personal, j.quota.sick, j.quota.vacation != null ? j.quota.vacation : 15))}</p>
   ${cross ? `<div class="note" style="margin-bottom:10px">${esc(t('range.cross'))}</div>` : ''}
   <div class="row" style="margin-bottom:12px"><button class="btn" id="rangeCsv" type="button">${esc(t('year.csv'))}</button><button class="btn" id="rangePrint" type="button">${esc(t('range.print'))}</button></div>
   <div class="tbl"><table>
-    <thead><tr><th rowspan="2">${esc(t('admin.code'))}</th><th rowspan="2">${esc(t('admin.name'))}</th><th colspan="2" style="text-align:center">${esc(t('range.inRange'))}</th><th colspan="2" style="text-align:center">${esc(t('range.ytd'))}</th></tr>
-      <tr><th>${esc(t('range.personal'))}</th><th>${esc(t('range.sick'))}</th><th>${esc(t('range.personal'))}</th><th>${esc(t('range.sick'))}</th></tr></thead>
-    <tbody>${j.rows.length ? j.rows.map(o => `<tr><td class="mono">${esc(o.code)}</td><td>${esc(o.name)}${o.end && o.end <= j.to ? `<div class="muted small">${esc(t('sys.resignedOn', fmtDay(o.end)))}</div>` : ''}</td><td class="mono">${n(o.personal)}</td><td class="mono">${n(o.sick)}</td><td class="mono"${warn(o.personalYtd, j.quota.personal)}>${n(o.personalYtd)}</td><td class="mono"${warn(o.sickYtd, j.quota.sick)}>${n(o.sickYtd)}</td></tr>`).join('')
-      : `<tr><td colspan="6" class="muted">${esc(t('admin.empty'))}</td></tr>`}
-      <tr><td></td><td><b>${esc(t('range.total'))}</b></td><td class="mono"><b>${n(sum('personal'))}</b></td><td class="mono"><b>${n(sum('sick'))}</b></td><td class="mono"><b>${n(sum('personalYtd'))}</b></td><td class="mono"><b>${n(sum('sickYtd'))}</b></td></tr></tbody>
+    <thead><tr><th rowspan="2">${esc(t('admin.code'))}</th><th rowspan="2">${esc(t('admin.name'))}</th><th colspan="3" style="text-align:center">${esc(t('range.inRange'))}</th><th colspan="3" style="text-align:center">${esc(t('range.ytd'))}</th></tr>
+      <tr><th>${esc(t('range.personal'))}</th><th>${esc(t('range.sick'))}</th><th>${esc(t('range.vacation'))}</th><th>${esc(t('range.personal'))}</th><th>${esc(t('range.sick'))}</th><th>${esc(t('range.vacation'))}</th></tr></thead>
+    <tbody>${j.rows.length ? j.rows.map(o => `<tr><td class="mono">${esc(o.code)}</td><td>${esc(o.name)}${o.end && o.end <= j.to ? `<div class="muted small">${esc(t('sys.resignedOn', fmtDay(o.end)))}</div>` : ''}</td><td class="mono">${n(o.personal)}</td><td class="mono">${n(o.sick)}</td><td class="mono">${n(o.vacation || 0)}</td><td class="mono"${warn(o.personalYtd, j.quota.personal)}>${n(o.personalYtd)}</td><td class="mono"${warn(o.sickYtd, j.quota.sick)}>${n(o.sickYtd)}</td><td class="mono"${warn(o.vacationYtd || 0, j.quota.vacation != null ? j.quota.vacation : 999)}>${n(o.vacationYtd || 0)}</td></tr>`).join('')
+      : `<tr><td colspan="8" class="muted">${esc(t('admin.empty'))}</td></tr>`}
+      <tr><td></td><td><b>${esc(t('range.total'))}</b></td><td class="mono"><b>${n(sum('personal'))}</b></td><td class="mono"><b>${n(sum('sick'))}</b></td><td class="mono"><b>${n(sum('vacation'))}</b></td><td class="mono"><b>${n(sum('personalYtd'))}</b></td><td class="mono"><b>${n(sum('sickYtd'))}</b></td><td class="mono"><b>${n(sum('vacationYtd'))}</b></td></tr></tbody>
   </table></div>`;
   $('#rangeCsv').onclick = () => {
     const qq = v => '"' + String(v).replace(/"/g, '""') + '"';
