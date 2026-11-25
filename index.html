@@ -1254,7 +1254,7 @@ $('#leaveForm').addEventListener('submit', async e => {
     if (needsPlan() && !planReady()) {
       const sig = formSig();
       const pj = await api('subPlan', { code: S.creds.code, pin: S.creds.pin, kind: $('#lvKind').value, from: $('#lvFrom').value, to: lvToVal(),
-        allDay: all, ft: all ? '' : $('#lvFt').value, tt: all ? '' : $('#lvTt').value }, 60000);
+        allDay: all, ft: all ? '' : $('#lvFt').value, tt: all ? '' : $('#lvTt').value }, 180000);
       subPlanData = { sig, periods: pj.periods || [] };
       renderSubBox();
       if (subPlanData.periods.length) { $('#lvBtn').disabled = false; syncKind(); $('#subBox').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
@@ -1264,7 +1264,7 @@ $('#leaveForm').addEventListener('submit', async e => {
       code: S.creds.code, pin: S.creds.pin, kind: $('#lvKind').value,
       from: $('#lvFrom').value, to: lvToVal(), allDay: all,
       ft: all ? '' : $('#lvFt').value, tt: all ? '' : $('#lvTt').value, reason: $('#lvReason').value, place: $('#lvPlace').value
-    }, 60000);
+    }, 180000);
     leaves = j.leaves || leaves; renderLeaves();
     if (j.balance) { S.balance = j.balance; renderBal(); }
     $('#lvReason').value = ''; $('#lvPlace').value = '';
