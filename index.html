@@ -149,6 +149,7 @@ tr:last-child td{border-bottom:0}
   <button class="btn" id="leaveBtn" data-i="home.leave"></button>
   <button class="btn" id="dutyBtn" data-i="duty.btn"></button>
   <button class="btn" id="histBtn" data-i="hist.btn"></button>
+  <button class="btn" id="payBtn" data-i="pay.btn" hidden></button>
   <button class="link" id="pinBtn" data-i="home.pin"></button>
   <p class="muted small" style="margin:0;text-align:center" id="rule"></p>
 </main>
@@ -259,6 +260,13 @@ tr:last-child td{border-bottom:0}
   <div class="top"><h2 style="font-size:20px" data-i="hist.title"></h2><div class="acts"><button class="link lang" data-lang type="button"></button><button class="link" id="histBack" data-i="leave.back"></button></div></div>
   <div class="err" id="hiErr" hidden></div>
   <div id="hiOut"><div class="done"><div class="spin"></div></div></div>
+</main>
+
+<!-- ===== สลิปเงินเดือน / Payslip ===== -->
+<main class="app" id="vPay" hidden>
+  <div class="top"><h2 style="font-size:20px" data-i="pay.title"></h2><div class="acts"><button class="link lang" data-lang type="button"></button><button class="link" id="payBack" data-i="leave.back"></button></div></div>
+  <div class="err" id="payErr" hidden></div>
+  <div id="payOut"><div class="done"><div class="spin"></div></div></div>
 </main>
 
 <!-- ===== เปลี่ยน PIN / Change PIN ===== -->
@@ -414,6 +422,7 @@ const D = {
     'err.net': 'เชื่อมต่ออินเทอร์เน็ตไม่ได้ ตรวจสอบสัญญาณแล้วลองอีกครั้ง',
     'err.bad': 'เซิร์ฟเวอร์ตอบกลับไม่ถูกต้อง ผู้ดูแลตรวจสอบการ Deploy (ต้องตั้ง Who has access เป็น Anyone)',
     'err.generic': 'เกิดข้อผิดพลาด', 'lang.btn': 'EN',
+    'pay.btn': 'สลิปเงินเดือนของฉัน', 'pay.title': 'สลิปเงินเดือน', 'pay.none': 'ยังไม่มีสลิปเงินเดือน', 'pay.net': 'เงินเดือนสุทธิ', 'pay.paid': 'วันที่รับเงิน {0}', 'pay.list': 'เลือกเดือนที่ต้องการดู', 'pay.back': 'กลับรายการสลิป', 'pay.print': 'พิมพ์ / บันทึกเป็น PDF', 'pay.conf': 'เอกสารนี้เป็นความลับเฉพาะบุคคล',
     'home.leave': 'ยื่นใบลา', 'leave.title': 'ยื่นใบลา', 'leave.back': 'กลับหน้าหลัก', 'leave.kind': 'ประเภทการลา',
     'kind.offsite': 'ปฏิบัติงานนอกสถานที่', 'sys.offsite': 'นอกสถานที่', 'leave.place': 'สถานที่ปฏิบัติงาน', 'leave.placeShort': 'สถานที่', 'leave.detail': 'รายละเอียดงาน', 'leave.submitOff': 'ส่งขออนุมัติ', 'leave.offsiteNote': 'ต้องให้ผู้บริหารอนุมัติก่อนจึงจะมีผล ไม่นับเป็นวันลา', 'leave.offsiteSent': 'ส่งคำขอปฏิบัติงานนอกสถานที่แล้ว รอผู้บริหารอนุมัติ', 'home.offsite': 'วันนี้ปฏิบัติงานนอกสถานที่: {0}',
     'kind.sick': 'ลาป่วย', 'kind.personal': 'ลากิจ', 'kind.maternity': 'ลาคลอด', 'kind.ordination': 'ลาบวช', 'kind.vacation': 'ลาพักร้อน', 'kind.other': 'ลาอื่นๆ',
@@ -522,6 +531,7 @@ const D = {
     'err.net': 'No internet connection. Check your signal and try again.',
     'err.bad': 'Invalid server response. The admin should check the deployment (Who has access must be Anyone).',
     'err.generic': 'Something went wrong', 'lang.btn': 'ไทย',
+    'pay.btn': 'My payslips', 'pay.title': 'Payslips', 'pay.none': 'No payslips yet', 'pay.net': 'Net pay', 'pay.paid': 'Paid on {0}', 'pay.list': 'Choose a month to view', 'pay.back': 'Back to list', 'pay.print': 'Print / Save as PDF', 'pay.conf': 'This document is confidential',
     'home.leave': 'Request leave', 'leave.title': 'Request leave', 'leave.back': 'Back to home', 'leave.kind': 'Type of leave',
     'kind.offsite': 'Off-site work', 'sys.offsite': 'Off-site', 'leave.place': 'Work location', 'leave.placeShort': 'Location', 'leave.detail': 'Work details', 'leave.submitOff': 'Request approval', 'leave.offsiteNote': 'Needs administrator approval before it applies. Not counted as leave.', 'leave.offsiteSent': 'Off-site work request sent. Waiting for administrator approval.', 'home.offsite': 'Working off-site today: {0}',
     'kind.sick': 'Sick Leave', 'kind.personal': 'Personal Leave', 'kind.maternity': 'Maternity Leave', 'kind.ordination': 'Ordination Leave', 'kind.vacation': 'Vacation Leave', 'kind.other': 'Other',
@@ -565,7 +575,7 @@ let adminData = null;
 let leaves = [], sysData = null, sysMode = '', sysPin = '';
 
 function show(id) {
-  ['vLogin', 'vHome', 'vCam', 'vDone', 'vLeave', 'vDuty', 'vHist', 'vPin', 'vSys', 'vAdmin'].forEach(v => { $('#' + v).hidden = v !== id; });
+  ['vLogin', 'vHome', 'vCam', 'vDone', 'vLeave', 'vDuty', 'vHist', 'vPay', 'vPin', 'vSys', 'vAdmin'].forEach(v => { $('#' + v).hidden = v !== id; });
   window.scrollTo(0, 0);
 }
 function err(el, msg) { el.textContent = msg || ''; el.hidden = !msg; }
@@ -636,7 +646,7 @@ $('#loginForm').addEventListener('submit', async e => {
   $('#loginBtn').disabled = false; $('#loginBtn').textContent = t('login.btn');
 });
 function applyLogin(j) {
-  S.teacher = j.teacher; S.settings = j.settings; S.today = j.today || []; S.day = plusDays(0); S.loadedAt = Date.now(); S.duty = j.duty || null; S.hours = j.hours || null; S.leave = j.leave || null; S.off = j.off || null; S.swapNews = j.swapNews || []; S.subs = j.subs || []; S.vacNotice = j.vacNotice || null; S.defaultPin = !!j.defaultPin; if (j.balance) S.balance = j.balance;
+  S.teacher = j.teacher; S.settings = j.settings; S.today = j.today || []; S.day = plusDays(0); S.loadedAt = Date.now(); S.duty = j.duty || null; S.hours = j.hours || null; S.leave = j.leave || null; S.off = j.off || null; S.swapNews = j.swapNews || []; S.subs = j.subs || []; S.vacNotice = j.vacNotice || null; S.payslip = !!j.payslip; S.defaultPin = !!j.defaultPin; if (j.balance) S.balance = j.balance;
   store.set('tc-cache', { teacher: j.teacher, settings: j.settings, school: j.settings.school });
   setSchool(j.settings.school);
   $('#tName').textContent = j.teacher.name;
@@ -708,6 +718,7 @@ function renderHome() {
   sn.hidden = !news.length;
   sn.innerHTML = news.length ? `<div>${esc(t('duty.news'))}</div>` + news.map(x => `<div class="small" style="font-weight:400">${swapLines(x).map(esc).join('<br>')}</div>`).join('') : '';
   renderSubMine(); renderVacNote();
+  $('#payBtn').hidden = !S.payslip;                       // ยังไม่ได้ตั้งชีตสลิป = ซ่อนปุ่ม
   const st = S.settings || {};
   const d = S.duty, h = S.hours, late = (d && d.late) || (h && h.late) || st.late, end = (d && d.end) || (h ? h.end : st.end);
   $('#rule').textContent = (d ? t('home.duty', tr(d.name)) : '') + t('home.late', late || '-') + (end ? t('home.end', end) : t('home.noEnd')) + t('home.radius', st.radius || '-');
@@ -1035,6 +1046,86 @@ async function loadHist() {
 function openHist() { histPrev = false; histOnly = 'all'; show('vHist'); loadHist(); }
 $('#histBtn').addEventListener('click', openHist);
 $('#histBack').addEventListener('click', () => show('vHome'));
+
+/* ---------- สลิปเงินเดือน / Payslip ---------- */
+const SLIP_ADDR_TH = '96 หมู่ 5 ถ.ประดิษฐ์สโมสร ต.บางเมืองใหม่ อ.เมืองสมุทรปราการ จ.สมุทรปราการ 10270';
+const SLIP_ADDR_EN = '96 Moo 5, Pradit Samosorn Rd., Bang Mueang Mai, Mueang Samut Prakan, Samut Prakan 10270';
+const TH_MONTHS = ['', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+const EN_MONTHS = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const baht = n => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const slipMonth = m => { const [y, mm] = m.split('-').map(Number); return L === 'en' ? `${EN_MONTHS[mm]} ${y}` : `${TH_MONTHS[mm]} ${y + 543}`; };
+function slipHtml(m, d) {
+  const [y, mm] = m.split('-').map(Number), pd = d.pd.split('-').map(Number);
+  const row = (a, b, kind) => `<tr class="${kind || ''}"><td>${a}</td><td class="r">${b}</td></tr>`;
+  const inc = [row('เงินเดือน / Salary', baht(d.sal)), row('เงินพิเศษ / Special pay', baht(d.sp))];
+  if (d.ex || d.nn) {
+    if (d.ex) inc.push(row('เงินค่าเรียนพิเศษ / Extra classes pay', baht(d.ex), 'sub'));
+    if (d.nn) inc.push(row('ครูพี่เลี้ยง / Nanny teacher', baht(d.nn), 'sub'));
+  }
+  inc.push(row('อื่นๆ / Other', baht((d.oi || []).reduce((s, x) => s + x[1], 0))));
+  (d.oi || []).forEach(x => inc.push(row(esc(x[0] || 'ไม่ระบุรายการ / Unspecified'), baht(x[1]), 'sub')));
+  inc.push(row('รวมรายได้ / Total earnings', baht(d.gross), 'tot'));
+  const odTotal = (d.lv[2] || 0) + (d.adv[0] || 0) + (d.od || []).reduce((s, x) => s + x[1], 0);
+  const ded = [row('ภาษีหัก ณ ที่จ่าย / Withholding tax', baht(d.tax)), row('กองทุนสงเคราะห์ครูเอกชน / Private Teacher Welfare Fund', baht(d.fund)),
+    row('ประกันสังคม / Social security', baht(d.sso)), row('ประกันสุขภาพ / Health insurance', baht(d.health)), row('อื่นๆ / Other', baht(odTotal))];
+  if (d.lv[2]) ded.push(row(`ลา/ขาดงานเกินสิทธิ์ / Leave or absence over entitlement: ${d.lv[0]} วัน days`, baht(d.lv[2]), 'sub'));
+  if (d.adv[0]) ded.push(row(`หักเบิกล่วงหน้า / Salary advance repayment (${esc(d.adv[1])} / ${esc(d.adv[2])})`, baht(d.adv[0]), 'sub'));
+  (d.od || []).forEach(x => ded.push(row(esc(x[0] || 'ไม่ระบุรายการ / Unspecified'), baht(x[1]), 'sub')));
+  ded.push(row('รวมรายการหัก / Total deductions', baht(d.td), 'tot'));
+  const how = d.how === 'KTB' ? `โอนเข้าบัญชีกรุงไทย / Bank transfer, Krungthai ${esc(d.acct)}` : d.how === 'ธนาคารอื่น' ? `โอนเข้าบัญชี${esc(d.bank)} / Bank transfer, ${esc(d.bank)} ${esc(d.acct)}` : 'เงินสด / Cash';
+  const info = (k, v) => `<div class="ir"><b>${k}</b><span>${v}</span></div>`;
+  return `<div class="slip">
+    <div class="hd"><img src="${new URL('logo.png', location.href).href}" alt=""><div><div class="sn">${esc(S.settings && S.settings.school || 'โรงเรียนแอนจูดี้')}</div><div class="sa">${SLIP_ADDR_TH}<br>${SLIP_ADDR_EN}</div></div></div>
+    <h3>สลิปเงินเดือน / Payslip</h3>
+    <div class="ms">ประจำเดือน ${TH_MONTHS[mm]} ${y + 543} / For ${EN_MONTHS[mm]} ${y}</div>
+    ${info('รหัสครู / Employee ID', esc(S.teacher.code))}${info('ชื่อ-นามสกุล / Name', esc(d.name))}${d.pos ? info('ตำแหน่ง / Position', esc(d.pos)) : ''}
+    ${info('วันที่รับเงิน / Payment date', `${pd[2]} ${TH_MONTHS[pd[1]]} ${pd[0] + 543} / ${pd[2]} ${EN_MONTHS[pd[1]]} ${pd[0]}`)}${info('วิธีรับเงิน / Payment method', how)}
+    <table><thead><tr><th>รายได้ / Earnings</th><th class="r">บาท / THB</th></tr></thead><tbody>${inc.join('')}</tbody></table>
+    <table><thead><tr><th>รายการหัก / Deductions</th><th class="r">บาท / THB</th></tr></thead><tbody>${ded.join('')}</tbody></table>
+    <div class="net"><span>เงินเดือนสุทธิ / Net pay</span><span>${baht(d.net)} บาท / THB</span></div>
+    <div class="att">สรุปการลงเวลา / Attendance summary: ขาดงาน absent ${d.att[0]} วัน days · มาสาย/กลับก่อน late/early ${d.att[1]} ครั้ง times · ลาป่วย sick leave ${d.att[2]} วัน days · ลากิจ personal leave ${d.att[3]} วัน days</div>
+  </div>`;
+}
+const SLIP_CSS = `.slip{font-family:"Sarabun",system-ui,sans-serif;color:#111;background:#fff;border:1px solid #ccc;border-radius:10px;padding:16px;font-size:14px}
+.slip .hd{display:flex;gap:12px;align-items:center;border-bottom:1px solid #888;padding-bottom:8px;margin-bottom:8px}.slip .hd img{width:64px;height:64px}
+.slip .sn{font-size:20px;font-weight:700}.slip .sa{font-size:11px;color:#555}.slip h3{text-align:center;margin:8px 0 0;font-size:18px}.slip .ms{text-align:center;font-weight:600;margin-bottom:8px}
+.slip .ir{display:flex;gap:8px;padding:1px 0}.slip .ir b{flex:0 0 46%}.slip table{width:100%;border-collapse:collapse;margin:10px 0}
+.slip th{background:#e8eef7;text-align:left;border:1px solid #666;padding:4px 8px}.slip td{padding:3px 8px;border-left:1px solid #666;border-right:1px solid #666}
+.slip tr.tot td{font-weight:700;border:1px solid #666}.slip tr.sub td{font-size:12px;color:#555;padding-left:22px}.slip tr.sub td.r{padding-left:8px}.slip .r{text-align:right}
+.slip .net{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font-size:20px;font-weight:700;margin:12px 0}.slip .net span:last-child{margin-left:auto;white-space:nowrap}.slip .att{font-size:12px;color:#555}
+.slip table{table-layout:fixed}.slip th,.slip td{white-space:normal;overflow-wrap:anywhere}.slip th.r,.slip td.r{width:32%;white-space:nowrap}.slip .hd img{object-fit:contain}`;
+let payList = null;
+function payErr(msg) { err($('#payErr'), msg); }
+function openPay() { show('vPay'); loadPay(); }
+async function loadPay() {
+  payErr(''); $('#payOut').innerHTML = '<div class="done"><div class="spin"></div></div>';
+  try {
+    const j = await api('payslipList', { code: S.creds.code, pin: S.creds.pin }, 60000);
+    payList = j.months || [];
+    $('#payOut').innerHTML = payList.length
+      ? `<div class="muted small">${esc(t('pay.list'))}</div>` + payList.map(m => `<button class="btn" data-pm="${esc(m)}" style="text-align:left">${esc(slipMonth(m))}</button>`).join('')
+      : `<div class="card muted">${esc(t('pay.none'))}</div>`;
+    document.querySelectorAll('[data-pm]').forEach(b => b.addEventListener('click', () => viewSlip(b.dataset.pm)));
+  } catch (x) { $('#payOut').innerHTML = ''; payErr(x.message); }
+}
+async function viewSlip(m) {
+  payErr(''); $('#payOut').innerHTML = '<div class="done"><div class="spin"></div></div>';
+  try {
+    const j = await api('payslipGet', { code: S.creds.code, pin: S.creds.pin, month: m }, 60000);
+    $('#payOut').innerHTML = `<style>${SLIP_CSS}</style>${slipHtml(m, j.slip)}
+      <div class="row"><button class="btn primary" id="payPrint" type="button">${esc(t('pay.print'))}</button><button class="btn" id="payList" type="button">${esc(t('pay.back'))}</button></div>
+      <p class="muted small" style="text-align:center;margin:0">${esc(t('pay.conf'))}</p>`;
+    $('#payList').addEventListener('click', loadPay);
+    $('#payPrint').addEventListener('click', () => {
+      const w = window.open('', '_blank'); if (!w) return;
+      w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Payslip ${esc(m)}</title><style>body{margin:16px}${SLIP_CSS}.slip{border:0}</style></head><body>${slipHtml(m, j.slip)}</body></html>`);
+      w.document.close(); setTimeout(() => w.print(), 400);
+    });
+  } catch (x) { payErr(x.message); loadPay(); }
+}
+$('#payBtn').addEventListener('click', openPay);
+$('#payBack').addEventListener('click', () => show('vHome'));
+
 function histDayPills(c) {
   const p = [];
   if (c.s === 'late') p.push(`<span class="pill p-late">${esc(t('hist.late'))}</span>`);
