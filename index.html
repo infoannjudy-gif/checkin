@@ -1048,6 +1048,7 @@ $('#histBtn').addEventListener('click', openHist);
 $('#histBack').addEventListener('click', () => show('vHome'));
 
 /* ---------- สลิปเงินเดือน / Payslip ---------- */
+const SLIP_SCHOOL_TH = 'โรงเรียนแอนจูดี้', SLIP_SCHOOL_EN = 'Annjudy School';
 const SLIP_ADDR_TH = '96 หมู่ 5 ถ.ประดิษฐ์สโมสร ต.บางเมืองใหม่ อ.เมืองสมุทรปราการ จ.สมุทรปราการ 10270';
 const SLIP_ADDR_EN = '96 Moo 5, Pradit Samosorn Rd., Bang Mueang Mai, Mueang Samut Prakan, Samut Prakan 10270';
 const TH_MONTHS = ['', 'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
@@ -1075,7 +1076,7 @@ function slipHtml(m, d) {
   const how = d.how === 'KTB' ? `โอนเข้าบัญชีกรุงไทย / Bank transfer, Krungthai ${esc(d.acct)}` : d.how === 'ธนาคารอื่น' ? `โอนเข้าบัญชี${esc(d.bank)} / Bank transfer, ${esc(d.bank)} ${esc(d.acct)}` : 'เงินสด / Cash';
   const info = (k, v) => `<div class="ir"><b>${k}</b><span>${v}</span></div>`;
   return `<div class="slip">
-    <div class="hd"><img src="${new URL('logo.png', location.href).href}" alt=""><div><div class="sn">${esc(S.settings && S.settings.school || 'โรงเรียนแอนจูดี้')}</div><div class="sa">${SLIP_ADDR_TH}<br>${SLIP_ADDR_EN}</div></div></div>
+    <div class="hd"><img src="${new URL('logo.png', location.href).href}" alt="" onerror="this.style.display='none'"><div><div class="sn">${SLIP_SCHOOL_TH}</div><div class="sn2">${SLIP_SCHOOL_EN}</div><div class="sa">${SLIP_ADDR_TH}<br>${SLIP_ADDR_EN}</div></div></div>
     <h3>สลิปเงินเดือน / Payslip</h3>
     <div class="ms">ประจำเดือน ${TH_MONTHS[mm]} ${y + 543} / For ${EN_MONTHS[mm]} ${y}</div>
     ${info('รหัสครู / Employee ID', esc(S.teacher.code))}${info('ชื่อ-นามสกุล / Name', esc(d.name))}${d.pos ? info('ตำแหน่ง / Position', esc(d.pos)) : ''}
@@ -1088,7 +1089,7 @@ function slipHtml(m, d) {
 }
 const SLIP_CSS = `.slip{font-family:"Sarabun",system-ui,sans-serif;color:#111;background:#fff;border:1px solid #ccc;border-radius:10px;padding:16px;font-size:14px}
 .slip .hd{display:flex;gap:12px;align-items:center;border-bottom:1px solid #888;padding-bottom:8px;margin-bottom:8px}.slip .hd img{width:64px;height:64px}
-.slip .sn{font-size:20px;font-weight:700}.slip .sa{font-size:11px;color:#555}.slip h3{text-align:center;margin:8px 0 0;font-size:18px}.slip .ms{text-align:center;font-weight:600;margin-bottom:8px}
+.slip .sn{font-size:20px;font-weight:700}.slip .sn2{font-size:15px;font-weight:700}.slip .sa{font-size:11px;color:#555}.slip h3{text-align:center;margin:8px 0 0;font-size:18px}.slip .ms{text-align:center;font-weight:600;margin-bottom:8px}
 .slip .ir{display:flex;gap:8px;padding:1px 0}.slip .ir b{flex:0 0 46%}.slip table{width:100%;border-collapse:collapse;margin:10px 0}
 .slip th{background:#e8eef7;text-align:left;border:1px solid #666;padding:4px 8px}.slip td{padding:3px 8px;border-left:1px solid #666;border-right:1px solid #666}
 .slip tr.tot td{font-weight:700;border:1px solid #666}.slip tr.sub td{font-size:12px;color:#555;padding-left:22px}.slip tr.sub td.r{padding-left:8px}.slip .r{text-align:right}
