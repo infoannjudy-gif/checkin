@@ -425,7 +425,7 @@ const D = {
     'err.net': 'เชื่อมต่ออินเทอร์เน็ตไม่ได้ ตรวจสอบสัญญาณแล้วลองอีกครั้ง',
     'err.bad': 'เซิร์ฟเวอร์ตอบกลับไม่ถูกต้อง ผู้ดูแลตรวจสอบการ Deploy (ต้องตั้ง Who has access เป็น Anyone)',
     'err.generic': 'เกิดข้อผิดพลาด', 'lang.btn': 'EN',
-    'pay.btn': 'สลิปเงินเดือนของฉัน', 'pay.title': 'สลิปเงินเดือน', 'pay.none': 'ยังไม่มีสลิปเงินเดือน', 'pay.net': 'เงินเดือนสุทธิ', 'pay.paid': 'วันที่รับเงิน {0}', 'pay.list': 'เลือกเดือนที่ต้องการดู', 'pay.back': 'กลับรายการสลิป', 'pay.print': 'พิมพ์ / บันทึกเป็น PDF', 'pay.conf': 'เอกสารนี้เป็นความลับเฉพาะบุคคล',
+    'pay.btn': 'สลิปเงินเดือนของฉัน', 'pay.title': 'สลิปเงินเดือน', 'pay.none': 'ยังไม่มีสลิปเงินเดือน', 'pay.net': 'เงินเดือนสุทธิ', 'pay.paid': 'วันที่รับเงิน {0}', 'pay.list': 'เลือกเดือนที่ต้องการดู', 'pay.back': 'กลับรายการสลิป', 'pay.print': 'พิมพ์ / บันทึกเป็น PDF', 'pay.save': 'บันทึกเป็นรูปภาพ', 'pay.saving': 'กำลังสร้างรูป…', 'pay.imgFail': 'สร้างรูปไม่สำเร็จ ลองใช้ปุ่มพิมพ์ / บันทึกเป็น PDF แทน', 'pay.imgHint': 'กดค้างที่รูป แล้วเลือก "บันทึกรูปภาพ" หรือกดปุ่มดาวน์โหลด', 'pay.download': 'ดาวน์โหลดรูป', 'pay.conf': 'เอกสารนี้เป็นความลับเฉพาะบุคคล',
     'home.leave': 'ยื่นใบลา', 'leave.title': 'ยื่นใบลา', 'leave.back': 'กลับหน้าหลัก', 'leave.kind': 'ประเภทการลา',
     'kind.offsite': 'ปฏิบัติงานนอกสถานที่', 'sys.offsite': 'นอกสถานที่', 'leave.place': 'สถานที่ปฏิบัติงาน', 'leave.placeShort': 'สถานที่', 'leave.detail': 'รายละเอียดงาน', 'leave.submitOff': 'ส่งขออนุมัติ', 'leave.offsiteNote': 'ต้องให้ผู้บริหารอนุมัติก่อนจึงจะมีผล ไม่นับเป็นวันลา', 'leave.offsiteSent': 'ส่งคำขอปฏิบัติงานนอกสถานที่แล้ว รอผู้บริหารอนุมัติ', 'home.offsite': 'วันนี้ปฏิบัติงานนอกสถานที่: {0}',
     'kind.sick': 'ลาป่วย', 'kind.personal': 'ลากิจ', 'kind.maternity': 'ลาคลอด', 'kind.ordination': 'ลาบวช', 'kind.vacation': 'ลาพักร้อน', 'kind.other': 'ลาอื่นๆ',
@@ -534,7 +534,7 @@ const D = {
     'err.net': 'No internet connection. Check your signal and try again.',
     'err.bad': 'Invalid server response. The admin should check the deployment (Who has access must be Anyone).',
     'err.generic': 'Something went wrong', 'lang.btn': 'ไทย',
-    'pay.btn': 'My payslips', 'pay.title': 'Payslips', 'pay.none': 'No payslips yet', 'pay.net': 'Net pay', 'pay.paid': 'Paid on {0}', 'pay.list': 'Choose a month to view', 'pay.back': 'Back to list', 'pay.print': 'Print / Save as PDF', 'pay.conf': 'This document is confidential',
+    'pay.btn': 'My payslips', 'pay.title': 'Payslips', 'pay.none': 'No payslips yet', 'pay.net': 'Net pay', 'pay.paid': 'Paid on {0}', 'pay.list': 'Choose a month to view', 'pay.back': 'Back to list', 'pay.print': 'Print / Save as PDF', 'pay.save': 'Save as image', 'pay.saving': 'Creating image…', 'pay.imgFail': 'Could not create the image. Please use Print / Save as PDF instead.', 'pay.imgHint': 'Press and hold the image, then choose "Save Image", or tap Download', 'pay.download': 'Download image', 'pay.conf': 'This document is confidential',
     'home.leave': 'Request leave', 'leave.title': 'Request leave', 'leave.back': 'Back to home', 'leave.kind': 'Type of leave',
     'kind.offsite': 'Off-site work', 'sys.offsite': 'Off-site', 'leave.place': 'Work location', 'leave.placeShort': 'Location', 'leave.detail': 'Work details', 'leave.submitOff': 'Request approval', 'leave.offsiteNote': 'Needs administrator approval before it applies. Not counted as leave.', 'leave.offsiteSent': 'Off-site work request sent. Waiting for administrator approval.', 'home.offsite': 'Working off-site today: {0}',
     'kind.sick': 'Sick Leave', 'kind.personal': 'Personal Leave', 'kind.maternity': 'Maternity Leave', 'kind.ordination': 'Ordination Leave', 'kind.vacation': 'Vacation Leave', 'kind.other': 'Other',
@@ -1112,12 +1112,43 @@ async function loadPay() {
     document.querySelectorAll('[data-pm]').forEach(b => b.addEventListener('click', () => viewSlip(b.dataset.pm)));
   } catch (x) { $('#payOut').innerHTML = ''; payErr(x.message); }
 }
+let slipImg = null;
+function loadH2C() {
+  if (window.html2canvas) return Promise.resolve();
+  return new Promise((ok, bad) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+    sc.onload = ok; sc.onerror = bad; document.head.appendChild(sc);
+  });
+}
+async function slipImage(m, d) {
+  await loadH2C();
+  const box = document.createElement('div');
+  box.style.cssText = 'position:fixed;left:-10000px;top:0;width:680px;background:#fff';
+  box.innerHTML = `<style>${SLIP_CSS}</style>${slipHtml(m, d)}`;
+  document.body.appendChild(box);
+  try {
+    const img = box.querySelector('img');
+    if (img && !img.complete) await new Promise(r => { img.onload = img.onerror = r; setTimeout(r, 3000); });
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    const cv = await window.html2canvas(box.querySelector('.slip'), { scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false });
+    const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+    return new File([blob], 'payslip-' + m + '.png', { type: 'image/png' });
+  } finally { box.remove(); }
+}
+// ไม่มีเมนูแชร์ (เช่น คอมพิวเตอร์): แสดงรูปให้กดค้างบันทึก หรือกดดาวน์โหลด
+function showSlipImg(f) {
+  const url = URL.createObjectURL(f), mo = $('#modal');
+  mo.innerHTML = `<div class="scrim" id="scrim"><div class="box" style="max-height:92vh;overflow:auto"><div class="small">${esc(t('pay.imgHint'))}</div><img src="${url}" alt="${esc(f.name)}"><div class="row"><a class="btn primary" href="${url}" download="${esc(f.name)}">${esc(t('pay.download'))}</a><button class="btn" id="mClose" type="button">${esc(t('modal.close'))}</button></div></div></div>`;
+  const close = () => { mo.innerHTML = ''; setTimeout(() => URL.revokeObjectURL(url), 1000); };
+  $('#mClose').onclick = close; $('#scrim').onclick = ev => { if (ev.target.id === 'scrim') close(); };
+}
 async function viewSlip(m) {
   payErr(''); $('#payOut').innerHTML = '<div class="done"><div class="spin"></div></div>';
   try {
     const j = await api('payslipGet', { code: S.creds.code, pin: S.creds.pin, month: m }, 60000);
     $('#payOut').innerHTML = `<style>${SLIP_CSS}</style>${slipHtml(m, j.slip)}
-      <div class="row"><button class="btn primary" id="payPrint" type="button">${esc(t('pay.print'))}</button><button class="btn" id="payList" type="button">${esc(t('pay.back'))}</button></div>
+      <div class="row"><button class="btn primary" id="paySave" type="button">${esc(t('pay.save'))}</button><button class="btn" id="payPrint" type="button">${esc(t('pay.print'))}</button><button class="btn" id="payList" type="button">${esc(t('pay.back'))}</button></div>
       <p class="muted small" style="text-align:center;margin:0">${esc(t('pay.conf'))}</p>`;
     $('#payList').addEventListener('click', loadPay);
     // พิมพ์จากหน้าเดิม (ไม่เปิดหน้าต่างใหม่ ซึ่งในแอปบนหน้าจอโฮมของ iPhone จะไม่มีปุ่มย้อนกลับ)
@@ -1127,6 +1158,20 @@ async function viewSlip(m) {
       const done = () => { document.body.classList.remove('print-slip'); document.title = old; window.removeEventListener('afterprint', done); };
       window.addEventListener('afterprint', done);
       setTimeout(() => { window.print(); setTimeout(done, 1500); }, 50);
+    });
+    // บันทึกเป็นรูป: สร้างรูปไว้ล่วงหน้า เพื่อให้กดแล้วเปิดเมนูแชร์ของมือถือได้ทันที (iPhone ต้องเรียกแชร์ทันทีหลังกด)
+    slipImg = null;
+    const job = slipImage(m, j.slip).then(f => { slipImg = f; }).catch(() => {});
+    $('#paySave').addEventListener('click', async () => {
+      const b = $('#paySave');
+      if (!slipImg) { b.disabled = true; b.textContent = t('pay.saving'); await job; b.disabled = false; b.textContent = t('pay.save'); }
+      if (!slipImg) { payErr(t('pay.imgFail')); return; }
+      const f = slipImg;
+      if (navigator.canShare && navigator.canShare({ files: [f] })) {
+        try { await navigator.share({ files: [f], title: f.name }); return; }
+        catch (e) { if (e && e.name === 'AbortError') return; }
+      }
+      showSlipImg(f);
     });
   } catch (x) { payErr(x.message); loadPay(); }
 }
